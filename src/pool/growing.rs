@@ -70,7 +70,7 @@ impl<T: Poolable> GrowingPool<T> {
     /// ```rust
     /// use fastalloc::{GrowingPool, PoolConfig, GrowthStrategy};
     ///
-    /// let config = PoolConfig::builder()
+    /// let config: PoolConfig<i32> = PoolConfig::builder()
     ///     .capacity(100)
     ///     .growth_strategy(GrowthStrategy::Linear { amount: 50 })
     ///     .build()

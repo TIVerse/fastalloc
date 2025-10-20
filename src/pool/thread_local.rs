@@ -62,7 +62,7 @@ impl<T: crate::traits::Poolable> ThreadLocalPool<T> {
     /// ```rust
     /// use fastalloc::{ThreadLocalPool, PoolConfig};
     ///
-    /// let config = PoolConfig::builder()
+    /// let config: PoolConfig<i32> = PoolConfig::builder()
     ///     .capacity(100)
     ///     .alignment(64)
     ///     .build()

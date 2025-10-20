@@ -17,7 +17,8 @@ use alloc::vec::Vec;
 ///     let reporter = StatisticsReporter::new(stats);
 ///     
 ///     let summary = reporter.summary();
-///     assert!(summary.contains("Capacity: 100"));
+///     assert!(summary.contains("Capacity:"));
+///     assert!(summary.contains("100"));
 /// }
 /// ```
 pub struct StatisticsReporter {

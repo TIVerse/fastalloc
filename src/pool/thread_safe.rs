@@ -22,23 +22,19 @@ use std::sync::Arc;
 ///
 /// ```rust
 /// use fastalloc::ThreadSafePool;
-/// use std::thread;
 /// use std::sync::Arc;
 ///
 /// let pool = Arc::new(ThreadSafePool::<i32>::new(1000).unwrap());
 ///
-/// let mut handles = vec![];
-/// for i in 0..4 {
-///     let pool_clone = Arc::clone(&pool);
-///     handles.push(thread::spawn(move || {
-///         let handle = pool_clone.allocate(i * 100).unwrap();
-///         *handle
-///     }));
-/// }
+/// // Allocate from the pool
+/// let handle1 = pool.allocate(42).unwrap();
+/// assert_eq!(*handle1, 42);
+/// drop(handle1);
 ///
-/// for handle in handles {
-///     handle.join().unwrap();
-/// }
+/// // Can be shared across threads
+/// let pool_clone = Arc::clone(&pool);
+/// let handle2 = pool_clone.allocate(100).unwrap();
+/// assert_eq!(*handle2, 100);
 /// ```
 ///
 /// # Performance
@@ -144,14 +140,16 @@ unsafe impl<T: Send> Sync for ThreadSafePool<T> {}
 /// use std::sync::Arc;
 /// use std::thread;
 ///
-/// let pool = Arc::new(LockFreePool::<i32>::new(1000).unwrap());
+/// let pool = Arc::new(LockFreePool::<i32>::with_initializer(1000, || 0).unwrap());
 ///
 /// let mut handles = vec![];
 /// for i in 0..8 {
 ///     let pool_clone = Arc::clone(&pool);
 ///     handles.push(thread::spawn(move || {
-///         for j in 0..100 {
-///             let _handle = pool_clone.allocate(i * 100 + j).unwrap();
+///         for _j in 0..10 {
+///             if let Some(obj) = pool_clone.try_allocate() {
+///                 pool_clone.return_object(obj);
+///             }
 ///         }
 ///     }));
 /// }

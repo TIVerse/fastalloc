@@ -14,7 +14,7 @@ use core::fmt;
 /// ```rust
 /// use fastalloc::{FixedPool, SharedHandle};
 ///
-/// let pool = FixedPool::new(10).unwrap();
+/// let pool = FixedPool::<i32>::new(10).unwrap();
 /// // This is a simplified example showing the concept
 /// ```
 pub struct WeakHandle<'pool, T> {

@@ -14,7 +14,7 @@ use alloc::rc::Rc;
 /// ```rust
 /// use fastalloc::{FixedPool, SharedHandle};
 ///
-/// let pool = FixedPool::new(10).unwrap();
+/// let pool = FixedPool::<i32>::new(10).unwrap();
 /// // Note: This is a simplified example. Actual implementation would need
 /// // pool support for shared handles.
 /// ```

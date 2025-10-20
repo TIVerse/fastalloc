@@ -50,7 +50,7 @@
 //! ```rust
 //! use fastalloc::{PoolConfig, GrowthStrategy};
 //!
-//! let config = PoolConfig::builder()
+//! let config: PoolConfig<i32> = PoolConfig::builder()
 //!     .capacity(1000)
 //!     .max_capacity(Some(10000))
 //!     .growth_strategy(GrowthStrategy::Exponential { factor: 2.0 })

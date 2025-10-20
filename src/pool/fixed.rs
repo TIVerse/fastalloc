@@ -212,7 +212,7 @@ impl<T: Poolable> FixedPool<T> {
     /// let pool = FixedPool::new(10).unwrap();
     /// if let Some(handle) = pool.try_allocate(42) {
     ///     assert_eq!(*handle, 42);
-    /// }
+    /// };
     /// ```
     #[inline]
     pub fn try_allocate(&self, value: T) -> Option<OwnedHandle<'_, T>> {
