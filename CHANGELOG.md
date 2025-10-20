@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **STABLE RELEASE**: First stable version with production-ready API
+- **STABLE RELEASE**: First stable version with stable API
 - Improved `Poolable` trait design - removed blanket implementation to prevent conflicts
 - Added `Poolable` implementations for common types (primitives, String, Vec, Box, Option)
 - Enhanced async compatibility with better lifetime management
@@ -96,8 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Benchmark methodology
 - Contributing guidelines
 
-[Unreleased]: https://github.com/TIVerse/fastalloc/compare/v1.0.2...HEAD
-[1.0.2]: https://github.com/TIVerse/fastalloc/compare/v1.0.1...v1.0.2
+[Unreleased]: https://github.com/TIVerse/fastalloc/compare/v1.0.1...HEAD
 [1.0.1]: https://github.com/TIVerse/fastalloc/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/TIVerse/fastalloc/compare/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/TIVerse/fastalloc/releases/tag/v0.1.0

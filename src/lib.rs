@@ -2,7 +2,7 @@
 //!
 //! A high-performance memory pooling library for Rust with type-safe handles and zero-cost abstractions.
 //!
-//! **Version 1.0** - Production-ready stable release with comprehensive testing and battle-tested API.
+//! **Version 1.0.1** - Stable release with comprehensive testing and battle-tested API.
 //!
 //! ## Overview
 //!

@@ -342,7 +342,7 @@ let pool = Arc::new(ThreadSafePool::new(100).unwrap());
 Enable only in development:
 ```toml
 [dev-dependencies]
-fastalloc = { version = "0.1", features = ["stats"] }
+fastalloc = { version = "1.0", features = ["stats"] }
 ```
 
 ## Checklist

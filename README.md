@@ -2,16 +2,16 @@
 
 [![Crates.io](https://img.shields.io/crates/v/fastalloc.svg)](https://crates.io/crates/fastalloc)
 [![Documentation](https://docs.rs/fastalloc/badge.svg)](https://docs.rs/fastalloc)
-[![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](README.md#license)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](README.md#license)
 [![Downloads](https://img.shields.io/crates/d/fastalloc.svg)](https://crates.io/crates/fastalloc)
 [![CI](https://img.shields.io/github/actions/workflow/status/TIVerse/fastalloc/ci.yml?branch=main&label=CI)](https://github.com/TIVerse/fastalloc/actions)
 [![Rust Version](https://img.shields.io/badge/rust-1.70+-orange.svg)](https://www.rust-lang.org)
 [![unsafe forbidden](https://img.shields.io/badge/unsafe-minimal-success.svg)](https://github.com/rust-secure-code/safety-dance/)
 [![Maintenance](https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg)](https://github.com/TIVerse/fastalloc)
 
-A blazingly fast, production-ready memory pooling library for Rust with type-safe handles and zero-cost abstractions. **Up to 50x faster** than standard heap allocation for frequently allocated objects.
+A blazingly fast memory pooling library for Rust with type-safe handles and zero-cost abstractions. **Up to 50x faster** than standard heap allocation for frequently allocated objects.
 
-**Version 1.0** - Production-ready stable release with comprehensive testing and battle-tested API.
+**Version 1.0.1** - Stable release with comprehensive testing and battle-tested API. Now hosted on GitHub at [TIVerse/fastalloc](https://github.com/TIVerse/fastalloc).
 
 > 🚀 **Perfect for**: Game engines, web servers, real-time systems, embedded devices, and any performance-critical application
 > 
@@ -343,7 +343,7 @@ fastalloc minimizes `unsafe` code and leverages Rust's ownership system to preve
 
 - **Better ergonomics**: RAII handles vs manual index management
 - **More pool types**: 4 different pool variants for different scenarios
-- **Production-ready**: Battle-tested in high-load systems
+- **Battle-tested**: Proven in high-load systems
 - **Comprehensive docs**: 50+ examples and detailed guides
 - **Active development**: Regular updates and responsive maintainer
 
@@ -484,12 +484,9 @@ Contributions are welcome! Please see [CONTRIBUTING.md](docs/contributing.md) fo
 
 ## License
 
-Licensed under either of:
+Licensed under the MIT License.
 
-- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
-- MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
-
-at your option.
+See [LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT for details.
 
 ## Authors
 
