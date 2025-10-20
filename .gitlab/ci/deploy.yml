@@ -1,0 +1,27 @@
+# Deployment jobs
+
+publish:dry-run:
+  stage: deploy
+  image: rust:latest
+  script:
+    - cargo publish --dry-run --all-features
+  only:
+    - tags
+  except:
+    - branches
+
+publish:crates-io:
+  stage: deploy
+  image: rust:latest
+  before_script:
+    - 'test -n "$CRATES_IO_TOKEN" || (echo "CRATES_IO_TOKEN not set" && exit 1)'
+  script:
+    - cargo publish --token "$CRATES_IO_TOKEN" --all-features
+  only:
+    - tags
+  except:
+    - branches
+  when: manual
+  environment:
+    name: crates.io
+    url: https://crates.io/crates/fastalloc
