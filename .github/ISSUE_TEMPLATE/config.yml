@@ -1,0 +1,12 @@
+# .github/ISSUE_TEMPLATE/config.yml
+blank_issues_enabled: false
+contact_links:
+  - name: "📚 Documentation"
+    url: "https://docs.rs/fastalloc"
+    about: "Check out the documentation"
+  - name: "💬 Discord Community"
+    url: "https://discord.gg/YOUR-DISCORD-INVITE"
+    about: "Join our Discord server for help and discussion"
+  - name: "🐛 Found a bug?"
+    url: "https://github.com/TIVerse/fastalloc/issues/new?assignees=&labels=bug&template=bug_report.yml"
+    about: "Report a bug to help us improve"
