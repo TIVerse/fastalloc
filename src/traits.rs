@@ -38,7 +38,7 @@ pub trait Poolable {
     /// This is a good place to reset the object to a clean state.
     /// The default implementation does nothing.
     fn on_acquire(&mut self) {}
-    
+
     /// Called when an object is being returned to the pool.
     ///
     /// This is a good place to perform cleanup or release resources.
@@ -59,7 +59,7 @@ pub trait Pool<T> {
     fn allocate(&self, value: T) -> Result<Self::Handle>
     where
         Self::Handle: Sized;
-    
+
     /// The handle type returned by this pool.
     type Handle;
 }
@@ -69,7 +69,7 @@ pub trait Pool<T> {
 pub trait PoolStats {
     /// Get current statistics for this pool.
     fn statistics(&self) -> crate::stats::PoolStatistics;
-    
+
     /// Reset statistics counters.
     fn reset_statistics(&self);
 }
@@ -77,44 +77,44 @@ pub trait PoolStats {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn poolable_default_impl() {
         struct TestType {
             value: i32,
         }
-        
+
         impl Poolable for TestType {}
-        
+
         let mut obj = TestType { value: 42 };
-        
+
         // Should compile and do nothing (uses default impl)
         obj.on_acquire();
         obj.on_release();
-        
+
         assert_eq!(obj.value, 42);
     }
-    
+
     #[test]
     fn poolable_custom_impl() {
         struct CustomType {
             counter: i32,
         }
-        
+
         impl Poolable for CustomType {
             fn on_acquire(&mut self) {
                 self.counter = 0;
             }
-            
+
             fn on_release(&mut self) {
                 self.counter = -1;
             }
         }
-        
+
         let mut obj = CustomType { counter: 100 };
         obj.on_acquire();
         assert_eq!(obj.counter, 0);
-        
+
         obj.counter = 50;
         obj.on_release();
         assert_eq!(obj.counter, -1);

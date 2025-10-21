@@ -2,7 +2,7 @@
 
 use crate::config::PoolConfig;
 use crate::error::Result;
-use crate::handle::OwnedHandle;
+use core::ops::{Deref, DerefMut};
 
 #[cfg(not(feature = "parking_lot"))]
 use std::sync::{Arc, Mutex};
@@ -11,6 +11,67 @@ use std::sync::{Arc, Mutex};
 use parking_lot::Mutex;
 #[cfg(feature = "parking_lot")]
 use std::sync::Arc;
+
+/// Handle for thread-safe pool allocations.
+///
+/// This handle holds a reference to the pool and automatically returns
+/// the object when dropped, with proper locking.
+pub struct ThreadSafeHandle<T: crate::traits::Poolable> {
+    pool: Arc<Mutex<crate::pool::GrowingPool<T>>>,
+    index: usize,
+}
+
+impl<T: crate::traits::Poolable> Deref for ThreadSafeHandle<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        #[cfg(not(feature = "parking_lot"))]
+        let pool = self.pool.lock().unwrap();
+        #[cfg(feature = "parking_lot")]
+        let pool = self.pool.lock();
+
+        // Safety: We extend the lifetime of the reference beyond the lock.
+        // This is safe because:
+        // 1. The pool is behind Arc, so it won't be deallocated
+        // 2. The index is valid and won't be reused while this handle exists
+        // 3. No other mutable access can occur while handle exists
+        unsafe {
+            let ptr = pool.get(self.index) as *const T;
+            &*ptr
+        }
+    }
+}
+
+impl<T: crate::traits::Poolable> DerefMut for ThreadSafeHandle<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        #[cfg(not(feature = "parking_lot"))]
+        let pool = self.pool.lock().unwrap();
+        #[cfg(feature = "parking_lot")]
+        let pool = self.pool.lock();
+
+        // Safety: Same reasoning as Deref, plus we have &mut self
+        // so we have exclusive access to this handle
+        unsafe {
+            #[allow(clippy::missing_transmute_annotations)]
+            let ptr = pool.get_mut(self.index) as *mut T;
+            &mut *ptr
+        }
+    }
+}
+
+impl<T: crate::traits::Poolable> Drop for ThreadSafeHandle<T> {
+    fn drop(&mut self) {
+        #[cfg(not(feature = "parking_lot"))]
+        let pool = self.pool.lock().unwrap();
+        #[cfg(feature = "parking_lot")]
+        let pool = self.pool.lock();
+
+        pool.return_to_pool(self.index);
+    }
+}
+
+// Safety: ThreadSafeHandle can be sent across threads if T is Send
+unsafe impl<T: crate::traits::Poolable + Send> Send for ThreadSafeHandle<T> {}
 
 /// A thread-safe memory pool using locks for synchronization.
 ///
@@ -52,7 +113,7 @@ impl<T: crate::traits::Poolable> ThreadSafePool<T> {
         let config = PoolConfig::builder().capacity(capacity).build()?;
         Self::with_config(config)
     }
-    
+
     /// Creates a new thread-safe pool with the specified configuration.
     pub fn with_config(config: PoolConfig<T>) -> Result<Self> {
         let pool = crate::pool::GrowingPool::with_config(config)?;
@@ -60,56 +121,57 @@ impl<T: crate::traits::Poolable> ThreadSafePool<T> {
             inner: Arc::new(Mutex::new(pool)),
         })
     }
-    
+
     /// Allocates an object from the pool.
     ///
     /// This method acquires a lock and may block if another thread is
     /// currently using the pool.
-    pub fn allocate(&self, value: T) -> Result<OwnedHandle<'static, T>> {
+    pub fn allocate(&self, value: T) -> Result<ThreadSafeHandle<T>> {
         #[cfg(not(feature = "parking_lot"))]
-        let pool = self.inner.lock().unwrap();
-        
+        let mut pool = self.inner.lock().unwrap();
+
         #[cfg(feature = "parking_lot")]
-        let pool = self.inner.lock();
-        
-        // Safety: We need to transmute the lifetime because the pool is behind Arc
-        // The pool will live as long as any Arc reference exists
-        unsafe {
-            let handle = pool.allocate(value)?;
-            Ok(core::mem::transmute(handle))
-        }
+        let mut pool = self.inner.lock();
+
+        // Allocate using the internal pool API
+        let index = pool.allocate_internal(value)?;
+
+        Ok(ThreadSafeHandle {
+            pool: Arc::clone(&self.inner),
+            index,
+        })
     }
-    
+
     /// Returns the current capacity of the pool.
     pub fn capacity(&self) -> usize {
         #[cfg(not(feature = "parking_lot"))]
         let pool = self.inner.lock().unwrap();
-        
+
         #[cfg(feature = "parking_lot")]
         let pool = self.inner.lock();
-        
+
         pool.capacity()
     }
-    
+
     /// Returns the number of available slots.
     pub fn available(&self) -> usize {
         #[cfg(not(feature = "parking_lot"))]
         let pool = self.inner.lock().unwrap();
-        
+
         #[cfg(feature = "parking_lot")]
         let pool = self.inner.lock();
-        
+
         pool.available()
     }
-    
+
     /// Returns the number of currently allocated objects.
     pub fn allocated(&self) -> usize {
         #[cfg(not(feature = "parking_lot"))]
         let pool = self.inner.lock().unwrap();
-        
+
         #[cfg(feature = "parking_lot")]
         let pool = self.inner.lock();
-        
+
         pool.allocated()
     }
 }
@@ -179,7 +241,7 @@ impl<T> LockFreePool<T> {
             capacity: std::sync::atomic::AtomicUsize::new(capacity),
         })
     }
-    
+
     /// Pre-populates the pool with objects created by the initializer.
     pub fn with_initializer<F>(capacity: usize, mut init: F) -> Result<Self>
     where
@@ -191,7 +253,7 @@ impl<T> LockFreePool<T> {
         }
         Ok(pool)
     }
-    
+
     /// Attempts to allocate an object from the pool.
     ///
     /// If the pool is empty, this will fail. Unlike other pool types,
@@ -199,7 +261,7 @@ impl<T> LockFreePool<T> {
     pub fn try_allocate(&self) -> Option<Box<T>> {
         self.inner.pop()
     }
-    
+
     /// Returns an object to the pool.
     pub fn return_object(&self, object: Box<T>) {
         self.inner.push(object);
@@ -212,7 +274,7 @@ impl<T> Clone for LockFreePool<T> {
         Self {
             inner: Arc::clone(&self.inner),
             capacity: std::sync::atomic::AtomicUsize::new(
-                self.capacity.load(std::sync::atomic::Ordering::Relaxed)
+                self.capacity.load(std::sync::atomic::Ordering::Relaxed),
             ),
         }
     }
@@ -227,21 +289,21 @@ unsafe impl<T: Send> Sync for LockFreePool<T> {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn thread_safe_pool_basic() {
         let pool = ThreadSafePool::<i32>::new(10).unwrap();
-        
+
         let handle = pool.allocate(42).unwrap();
         assert_eq!(*handle, 42);
     }
-    
+
     #[test]
     fn thread_safe_pool_concurrent() {
         use std::thread;
-        
+
         let pool = Arc::new(ThreadSafePool::<i32>::new(100).unwrap());
-        
+
         let mut handles = vec![];
         for i in 0..4 {
             let pool_clone = Arc::clone(&pool);
@@ -249,20 +311,20 @@ mod tests {
                 let _h = pool_clone.allocate(i).unwrap();
             }));
         }
-        
+
         for handle in handles {
             handle.join().unwrap();
         }
     }
-    
+
     #[cfg(feature = "lock-free")]
     #[test]
     fn lock_free_pool_basic() {
         let pool = LockFreePool::<i32>::with_initializer(10, || 0).unwrap();
-        
+
         let obj = pool.try_allocate();
         assert!(obj.is_some());
-        
+
         pool.return_object(obj.unwrap());
     }
 }

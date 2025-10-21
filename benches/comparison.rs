@@ -3,10 +3,10 @@ use fastalloc::FixedPool;
 
 fn bench_pool_vs_box(c: &mut Criterion) {
     let mut group = c.benchmark_group("pool_vs_box");
-    
+
     for size in [100, 1000, 10000].iter() {
         group.throughput(Throughput::Elements(*size as u64));
-        
+
         group.bench_with_input(BenchmarkId::new("pool", size), size, |b, &size| {
             let pool = FixedPool::<i32>::new(size).unwrap();
             b.iter(|| {
@@ -14,7 +14,7 @@ fn bench_pool_vs_box(c: &mut Criterion) {
                 black_box(&h);
             });
         });
-        
+
         group.bench_with_input(BenchmarkId::new("box", size), size, |b, _size| {
             b.iter(|| {
                 let b = Box::new(black_box(42));
@@ -22,13 +22,13 @@ fn bench_pool_vs_box(c: &mut Criterion) {
             });
         });
     }
-    
+
     group.finish();
 }
 
 fn bench_pool_vs_vec(c: &mut Criterion) {
     let mut group = c.benchmark_group("pool_vs_vec_reserve");
-    
+
     for size in [100, 1000].iter() {
         group.bench_with_input(BenchmarkId::new("pool", size), size, |b, &size| {
             let pool = FixedPool::<i32>::new(size).unwrap();
@@ -40,7 +40,7 @@ fn bench_pool_vs_vec(c: &mut Criterion) {
                 black_box(&handles);
             });
         });
-        
+
         group.bench_with_input(BenchmarkId::new("vec", size), size, |b, &size| {
             b.iter(|| {
                 let mut vec = Vec::with_capacity(size);
@@ -51,7 +51,7 @@ fn bench_pool_vs_vec(c: &mut Criterion) {
             });
         });
     }
-    
+
     group.finish();
 }
 
@@ -63,9 +63,10 @@ fn bench_struct_allocation(c: &mut Criterion) {
         health: i32,
         team: u8,
     }
-    
+    impl fastalloc::Poolable for GameObject {}
+
     let mut group = c.benchmark_group("struct_allocation");
-    
+
     group.bench_function("pool", |b| {
         let pool = FixedPool::<GameObject>::new(1000).unwrap();
         b.iter(|| {
@@ -79,7 +80,7 @@ fn bench_struct_allocation(c: &mut Criterion) {
             black_box(&h);
         });
     });
-    
+
     group.bench_function("box", |b| {
         b.iter(|| {
             let obj = GameObject {
@@ -92,13 +93,13 @@ fn bench_struct_allocation(c: &mut Criterion) {
             black_box(&b);
         });
     });
-    
+
     group.finish();
 }
 
 fn bench_cache_performance(c: &mut Criterion) {
     let mut group = c.benchmark_group("cache_performance");
-    
+
     // Sequential access in pool (good cache locality)
     group.bench_function("pool_sequential", |b| {
         let pool = FixedPool::<i32>::new(1000).unwrap();
@@ -106,7 +107,7 @@ fn bench_cache_performance(c: &mut Criterion) {
         for i in 0..1000 {
             handles.push(pool.allocate(i).unwrap());
         }
-        
+
         b.iter(|| {
             let mut sum = 0;
             for h in &handles {
@@ -115,11 +116,11 @@ fn bench_cache_performance(c: &mut Criterion) {
             black_box(sum);
         });
     });
-    
+
     // Vec access (also good cache locality)
     group.bench_function("vec_sequential", |b| {
         let vec: Vec<i32> = (0..1000).collect();
-        
+
         b.iter(|| {
             let mut sum = 0;
             for v in &vec {
@@ -128,11 +129,11 @@ fn bench_cache_performance(c: &mut Criterion) {
             black_box(sum);
         });
     });
-    
+
     // Boxed values (potentially poor cache locality)
     group.bench_function("box_vector_sequential", |b| {
         let boxes: Vec<Box<i32>> = (0..1000).map(|i| Box::new(i)).collect();
-        
+
         b.iter(|| {
             let mut sum = 0;
             for b in &boxes {
@@ -141,7 +142,7 @@ fn bench_cache_performance(c: &mut Criterion) {
             black_box(sum);
         });
     });
-    
+
     group.finish();
 }
 

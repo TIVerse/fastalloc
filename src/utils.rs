@@ -20,18 +20,21 @@ pub fn validate_alignment(alignment: usize) -> Result<()> {
 
 /// Rounds up a size to the next multiple of alignment.
 #[inline]
+#[allow(dead_code)]
 pub const fn align_up(size: usize, alignment: usize) -> usize {
     (size + alignment - 1) & !(alignment - 1)
 }
 
 /// Calculates the aligned size for a type with custom alignment.
 #[inline]
+#[allow(dead_code)]
 pub const fn aligned_size<T>(alignment: usize) -> usize {
     align_up(core::mem::size_of::<T>(), alignment)
 }
 
 /// Calculates padding needed to reach alignment.
 #[inline]
+#[allow(dead_code)]
 pub const fn padding_needed(size: usize, alignment: usize) -> usize {
     let aligned = align_up(size, alignment);
     aligned - size
@@ -46,6 +49,7 @@ pub fn compute_exponential_growth(current: usize, factor: f64) -> usize {
 
 /// Computes linear growth.
 #[inline]
+#[allow(dead_code)]
 pub const fn compute_linear_growth(amount: usize) -> usize {
     amount
 }
@@ -64,7 +68,10 @@ pub fn clamp_capacity(value: usize, min: usize, max: Option<usize>) -> usize {
 
 /// Computes the next chunk size for a growing pool.
 #[allow(dead_code)]
-pub fn next_chunk_size(current_capacity: usize, growth_strategy: &crate::config::GrowthStrategy) -> usize {
+pub fn next_chunk_size(
+    current_capacity: usize,
+    growth_strategy: &crate::config::GrowthStrategy,
+) -> usize {
     match growth_strategy {
         crate::config::GrowthStrategy::None => 0,
         crate::config::GrowthStrategy::Linear { amount } => *amount,
@@ -78,7 +85,7 @@ pub fn next_chunk_size(current_capacity: usize, growth_strategy: &crate::config:
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_is_power_of_two() {
         assert!(is_power_of_two(1));
@@ -87,25 +94,25 @@ mod tests {
         assert!(is_power_of_two(8));
         assert!(is_power_of_two(64));
         assert!(is_power_of_two(1024));
-        
+
         assert!(!is_power_of_two(0));
         assert!(!is_power_of_two(3));
         assert!(!is_power_of_two(7));
         assert!(!is_power_of_two(100));
     }
-    
+
     #[test]
     fn test_validate_alignment() {
         assert!(validate_alignment(1).is_ok());
         assert!(validate_alignment(2).is_ok());
         assert!(validate_alignment(4).is_ok());
         assert!(validate_alignment(64).is_ok());
-        
+
         assert!(validate_alignment(0).is_err());
         assert!(validate_alignment(3).is_err());
         assert!(validate_alignment(7).is_err());
     }
-    
+
     #[test]
     fn test_align_up() {
         assert_eq!(align_up(0, 4), 0);
@@ -116,7 +123,7 @@ mod tests {
         assert_eq!(align_up(9, 8), 16);
         assert_eq!(align_up(100, 64), 128);
     }
-    
+
     #[test]
     fn test_padding_needed() {
         assert_eq!(padding_needed(0, 4), 0);
@@ -126,14 +133,14 @@ mod tests {
         assert_eq!(padding_needed(7, 8), 1);
         assert_eq!(padding_needed(9, 8), 7);
     }
-    
+
     #[test]
     fn test_compute_exponential_growth() {
         assert_eq!(compute_exponential_growth(100, 2.0), 200);
         assert_eq!(compute_exponential_growth(100, 1.5), 150);
         assert_eq!(compute_exponential_growth(0, 2.0), 1); // Minimum growth
     }
-    
+
     #[test]
     fn test_clamp_capacity() {
         assert_eq!(clamp_capacity(50, 10, Some(100)), 50);

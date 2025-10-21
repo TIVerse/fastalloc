@@ -26,7 +26,7 @@ impl StackAllocator {
         // Initialize with all indices available in reverse order
         // so that index 0 is allocated first
         let free_stack: Vec<usize> = (0..capacity).rev().collect();
-        
+
         Self {
             free_stack,
             capacity,
@@ -37,18 +37,19 @@ impl StackAllocator {
             },
         }
     }
-    
+
     /// Creates a new stack allocator with additional capacity.
+    #[allow(dead_code)]
     pub fn with_additional_capacity(&mut self, additional: usize) {
         let old_capacity = self.capacity;
         self.capacity += additional;
-        
+
         #[cfg(debug_assertions)]
         {
             let new_num_words = (self.capacity + 63) / 64;
             self.allocated_bitmap.resize(new_num_words, 0);
         }
-        
+
         // Add new indices to the stack
         for i in (old_capacity..self.capacity).rev() {
             self.free_stack.push(i);
@@ -60,7 +61,7 @@ impl Allocator for StackAllocator {
     #[inline]
     fn allocate(&mut self) -> Option<usize> {
         let index = self.free_stack.pop()?;
-        
+
         #[cfg(debug_assertions)]
         {
             let word_idx = index / 64;
@@ -73,14 +74,14 @@ impl Allocator for StackAllocator {
             );
             self.allocated_bitmap[word_idx] |= 1u64 << bit_pos;
         }
-        
+
         Some(index)
     }
-    
+
     #[inline]
     fn free(&mut self, index: usize) {
         debug_assert!(index < self.capacity, "index out of bounds");
-        
+
         #[cfg(debug_assertions)]
         {
             let word_idx = index / 64;
@@ -93,15 +94,15 @@ impl Allocator for StackAllocator {
             );
             self.allocated_bitmap[word_idx] &= !(1u64 << bit_pos);
         }
-        
+
         self.free_stack.push(index);
     }
-    
+
     #[inline]
     fn available(&self) -> usize {
         self.free_stack.len()
     }
-    
+
     #[inline]
     fn capacity(&self) -> usize {
         self.capacity
@@ -111,7 +112,7 @@ impl Allocator for StackAllocator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn new_allocator_has_all_slots_available() {
         let allocator = StackAllocator::new(10);
@@ -120,11 +121,11 @@ mod tests {
         assert!(allocator.is_empty());
         assert!(!allocator.is_full());
     }
-    
+
     #[test]
     fn allocate_returns_indices_in_order() {
         let mut allocator = StackAllocator::new(5);
-        
+
         // Should allocate 0, 1, 2, 3, 4 in order
         assert_eq!(allocator.allocate(), Some(0));
         assert_eq!(allocator.allocate(), Some(1));
@@ -133,38 +134,38 @@ mod tests {
         assert_eq!(allocator.allocate(), Some(4));
         assert_eq!(allocator.allocate(), None);
     }
-    
+
     #[test]
     fn lifo_behavior() {
         let mut allocator = StackAllocator::new(3);
-        
+
         let idx0 = allocator.allocate().unwrap();
         let idx1 = allocator.allocate().unwrap();
         let idx2 = allocator.allocate().unwrap();
-        
+
         // Free in order: idx0, idx1, idx2
         allocator.free(idx0);
         allocator.free(idx1);
         allocator.free(idx2);
-        
+
         // Should get them back in LIFO order: idx2, idx1, idx0
         assert_eq!(allocator.allocate(), Some(idx2));
         assert_eq!(allocator.allocate(), Some(idx1));
         assert_eq!(allocator.allocate(), Some(idx0));
     }
-    
+
     #[test]
     fn with_additional_capacity() {
         let mut allocator = StackAllocator::new(2);
-        
+
         allocator.allocate();
         allocator.allocate();
         assert!(allocator.is_full());
-        
+
         allocator.with_additional_capacity(3);
         assert_eq!(allocator.capacity(), 5);
         assert_eq!(allocator.available(), 3);
-        
+
         // Should be able to allocate new indices
         assert_eq!(allocator.allocate(), Some(2));
         assert_eq!(allocator.allocate(), Some(3));

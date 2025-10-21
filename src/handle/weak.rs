@@ -29,21 +29,23 @@ impl<'pool, T> WeakHandle<'pool, T> {
     pub(crate) fn new(inner: Weak<super::shared::SharedHandleInner<'pool, T>>) -> Self {
         Self { inner }
     }
-    
+
     /// Attempts to upgrade this weak handle to a shared handle.
     ///
     /// Returns `None` if the object has already been returned to the pool.
     #[inline]
     pub fn upgrade(&self) -> Option<super::SharedHandle<'pool, T>> {
-        self.inner.upgrade().map(|inner| super::SharedHandle { inner })
+        self.inner
+            .upgrade()
+            .map(|inner| super::SharedHandle { inner })
     }
-    
+
     /// Returns the number of strong references to the object, if it still exists.
     #[inline]
     pub fn strong_count(&self) -> usize {
         self.inner.strong_count()
     }
-    
+
     /// Returns the number of weak references to the object.
     #[inline]
     pub fn weak_count(&self) -> usize {
@@ -70,49 +72,48 @@ impl<'pool, T> fmt::Debug for WeakHandle<'pool, T> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::handle::SharedHandle;
     use crate::pool::FixedPool;
-    
+
     #[test]
     fn weak_handle_upgrade() {
         let pool = FixedPool::<i32>::new(10).unwrap();
         let handle = pool.allocate(42).unwrap();
         let index = handle.index();
-        
+
         let shared = SharedHandle::new(&pool, index);
         let weak = shared.downgrade();
-        
+
         assert_eq!(weak.strong_count(), 1);
-        
+
         // Can upgrade while shared handle exists
         let upgraded = weak.upgrade();
         assert!(upgraded.is_some());
         assert_eq!(weak.strong_count(), 2);
-        
+
         drop(shared);
         drop(upgraded);
-        
+
         // Cannot upgrade after all strong references are gone
         let upgraded = weak.upgrade();
         assert!(upgraded.is_none());
-        
+
         // Prevent double-free
         core::mem::forget(handle);
     }
-    
+
     #[test]
     fn weak_handle_clone() {
         let pool = FixedPool::<i32>::new(10).unwrap();
         let handle = pool.allocate(42).unwrap();
         let index = handle.index();
-        
+
         let shared = SharedHandle::new(&pool, index);
         let weak = shared.downgrade();
         let weak2 = weak.clone();
-        
+
         assert_eq!(weak.weak_count(), weak2.weak_count());
-        
+
         // Cleanup
         drop(shared);
         core::mem::forget(handle);

@@ -123,19 +123,19 @@ pub use stats::{PoolStatistics, StatisticsCollector};
 // Prelude for convenient imports
 pub mod prelude {
     //! Convenient re-exports of commonly used types
-    
+
     pub use crate::config::{GrowthStrategy, InitializationStrategy, PoolConfig};
     pub use crate::error::{Error, Result};
     pub use crate::handle::{OwnedHandle, SharedHandle, WeakHandle};
     pub use crate::pool::{FixedPool, GrowingPool};
     pub use crate::traits::Poolable;
-    
+
     #[cfg(feature = "std")]
     pub use crate::pool::{ThreadLocalPool, ThreadSafePool};
-    
+
     #[cfg(all(feature = "std", feature = "lock-free"))]
     pub use crate::pool::LockFreePool;
-    
+
     #[cfg(feature = "stats")]
     pub use crate::stats::{PoolStatistics, StatisticsCollector};
 }
@@ -166,7 +166,10 @@ impl Poolable for bool {}
 impl Poolable for char {}
 
 // Common standard types
+#[cfg(feature = "std")]
 impl Poolable for String {}
+#[cfg(not(feature = "std"))]
+impl Poolable for alloc::string::String {}
 impl<T: Poolable> Poolable for alloc::vec::Vec<T> {}
 impl<T: Poolable> Poolable for alloc::boxed::Box<T> {}
 impl<T: Poolable> Poolable for Option<T> {}

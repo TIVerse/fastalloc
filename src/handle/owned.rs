@@ -1,7 +1,7 @@
 //! Owned handle that exclusively owns a pool-allocated object.
 
-use core::ops::{Deref, DerefMut};
 use core::fmt;
+use core::ops::{Deref, DerefMut};
 
 /// An owned handle to a pool-allocated object.
 ///
@@ -35,6 +35,13 @@ pub struct OwnedHandle<'pool, T> {
 ///
 /// This trait is used internally to allow handles to work with different
 /// pool types without exposing implementation details.
+///
+/// # Safety
+///
+/// The `get_mut` method returns a mutable reference from an immutable receiver.
+/// This is safe because pools use interior mutability (RefCell/UnsafeCell) and
+/// ensure exclusive access through allocator tracking.
+#[allow(clippy::mut_from_ref)]
 pub trait PoolInterface<T> {
     #[doc(hidden)]
     fn get(&self, index: usize) -> &T;
@@ -56,7 +63,7 @@ impl<'pool, T> OwnedHandle<'pool, T> {
             _marker: core::marker::PhantomData,
         }
     }
-    
+
     /// Returns the internal index of this handle.
     ///
     /// This is useful for debugging but should not be relied upon for
@@ -69,7 +76,7 @@ impl<'pool, T> OwnedHandle<'pool, T> {
 
 impl<'pool, T> Deref for OwnedHandle<'pool, T> {
     type Target = T;
-    
+
     #[inline]
     fn deref(&self) -> &Self::Target {
         self.pool.get(self.index)
@@ -131,12 +138,12 @@ impl<T: crate::traits::Poolable> super::owned::PoolInterface<T> for crate::pool:
     fn get(&self, index: usize) -> &T {
         self.get(index)
     }
-    
+
     #[inline]
     fn get_mut(&self, index: usize) -> &mut T {
         self.get_mut(index)
     }
-    
+
     #[inline]
     fn return_to_pool(&self, index: usize) {
         self.return_to_pool(index)
@@ -146,43 +153,43 @@ impl<T: crate::traits::Poolable> super::owned::PoolInterface<T> for crate::pool:
 #[cfg(test)]
 mod tests {
     use crate::pool::FixedPool;
-    
+
     #[test]
     fn handle_deref() {
         let pool = FixedPool::new(10).unwrap();
         let handle = pool.allocate(42).unwrap();
-        
+
         assert_eq!(*handle, 42);
     }
-    
+
     #[test]
     fn handle_deref_mut() {
         let pool = FixedPool::new(10).unwrap();
         let mut handle = pool.allocate(10).unwrap();
-        
+
         *handle = 20;
         assert_eq!(*handle, 20);
     }
-    
+
     #[test]
     fn handle_drop() {
         let pool = FixedPool::new(10).unwrap();
-        
+
         {
             let _handle = pool.allocate(42).unwrap();
             assert_eq!(pool.allocated(), 1);
         }
-        
+
         assert_eq!(pool.allocated(), 0);
     }
-    
+
     #[test]
     fn handle_equality() {
         let pool = FixedPool::new(10).unwrap();
         let h1 = pool.allocate(42).unwrap();
         let h2 = pool.allocate(42).unwrap();
         let h3 = pool.allocate(99).unwrap();
-        
+
         assert_eq!(h1, h2);
         assert_ne!(h1, h3);
     }

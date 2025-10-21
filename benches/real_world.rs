@@ -10,16 +10,17 @@ struct GameEntity {
     health: i32,
     active: bool,
 }
+impl fastalloc::Poolable for GameEntity {}
 
 fn bench_game_entity_spawning(c: &mut Criterion) {
     let mut group = c.benchmark_group("game_entity_spawning");
-    
+
     group.bench_function("pool", |b| {
         let pool = FixedPool::<GameEntity>::new(1000).unwrap();
-        
+
         b.iter(|| {
             let mut entities = Vec::new();
-            
+
             // Spawn 100 entities
             for i in 0..100 {
                 let entity = GameEntity {
@@ -31,10 +32,10 @@ fn bench_game_entity_spawning(c: &mut Criterion) {
                 };
                 entities.push(pool.allocate(entity).unwrap());
             }
-            
+
             // Simulate some entities dying (deallocation)
             entities.drain(0..20);
-            
+
             // Spawn more entities (reusing freed slots)
             for i in 100..120 {
                 let entity = GameEntity {
@@ -46,15 +47,15 @@ fn bench_game_entity_spawning(c: &mut Criterion) {
                 };
                 entities.push(pool.allocate(entity).unwrap());
             }
-            
+
             black_box(&entities);
         });
     });
-    
+
     group.bench_function("box", |b| {
         b.iter(|| {
             let mut entities = Vec::new();
-            
+
             for i in 0..100 {
                 let entity = GameEntity {
                     id: i,
@@ -65,9 +66,9 @@ fn bench_game_entity_spawning(c: &mut Criterion) {
                 };
                 entities.push(Box::new(entity));
             }
-            
+
             entities.drain(0..20);
-            
+
             for i in 100..120 {
                 let entity = GameEntity {
                     id: i,
@@ -78,11 +79,11 @@ fn bench_game_entity_spawning(c: &mut Criterion) {
                 };
                 entities.push(Box::new(entity));
             }
-            
+
             black_box(&entities);
         });
     });
-    
+
     group.finish();
 }
 
@@ -94,16 +95,17 @@ struct Connection {
     port: u16,
     buffer: Vec<u8>,
 }
+impl fastalloc::Poolable for Connection {}
 
 fn bench_server_connections(c: &mut Criterion) {
     let mut group = c.benchmark_group("server_connections");
-    
+
     group.bench_function("pool", |b| {
         let pool = FixedPool::<Connection>::new(500).unwrap();
-        
+
         b.iter(|| {
             let mut connections = Vec::new();
-            
+
             // Simulate incoming connections
             for i in 0..100 {
                 let conn = Connection {
@@ -114,10 +116,10 @@ fn bench_server_connections(c: &mut Criterion) {
                 };
                 connections.push(pool.allocate(conn).unwrap());
             }
-            
+
             // Simulate some connections closing
             connections.drain(0..30);
-            
+
             // New connections reuse slots
             for i in 100..130 {
                 let conn = Connection {
@@ -128,11 +130,11 @@ fn bench_server_connections(c: &mut Criterion) {
                 };
                 connections.push(pool.allocate(conn).unwrap());
             }
-            
+
             black_box(&connections);
         });
     });
-    
+
     group.finish();
 }
 
@@ -144,16 +146,17 @@ struct Particle {
     lifetime: f32,
     color: [u8; 4],
 }
+impl fastalloc::Poolable for Particle {}
 
 fn bench_particle_system(c: &mut Criterion) {
     let mut group = c.benchmark_group("particle_system");
-    
+
     group.bench_function("pool_high_churn", |b| {
         let pool = FixedPool::<Particle>::new(2000).unwrap();
-        
+
         b.iter(|| {
             let mut particles = Vec::new();
-            
+
             // Burst emission
             for _ in 0..500 {
                 let particle = Particle {
@@ -164,12 +167,12 @@ fn bench_particle_system(c: &mut Criterion) {
                 };
                 particles.push(pool.allocate(particle).unwrap());
             }
-            
+
             // Simulate particle deaths and new emissions over time
             for _frame in 0..10 {
                 // Remove dead particles
                 particles.drain(0..particles.len().min(50));
-                
+
                 // Emit new particles
                 for _ in 0..50 {
                     let particle = Particle {
@@ -183,11 +186,11 @@ fn bench_particle_system(c: &mut Criterion) {
                     }
                 }
             }
-            
+
             black_box(&particles);
         });
     });
-    
+
     group.finish();
 }
 
@@ -199,15 +202,16 @@ fn bench_data_pipeline(c: &mut Criterion) {
         data: Vec<f64>,
         processed: bool,
     }
-    
+    impl fastalloc::Poolable for DataChunk {}
+
     let mut group = c.benchmark_group("data_pipeline");
-    
+
     group.bench_function("pool", |b| {
         let pool = FixedPool::<DataChunk>::new(200).unwrap();
-        
+
         b.iter(|| {
             let mut pipeline = Vec::new();
-            
+
             // Stage 1: Create data chunks
             for i in 0..50 {
                 let chunk = DataChunk {
@@ -217,15 +221,15 @@ fn bench_data_pipeline(c: &mut Criterion) {
                 };
                 pipeline.push(pool.allocate(chunk).unwrap());
             }
-            
+
             // Stage 2: Process (simulate)
             for chunk in &mut pipeline {
                 chunk.processed = true;
             }
-            
+
             // Stage 3: Release processed chunks and add new ones
             pipeline.drain(0..25);
-            
+
             for i in 50..75 {
                 let chunk = DataChunk {
                     id: i,
@@ -234,11 +238,11 @@ fn bench_data_pipeline(c: &mut Criterion) {
                 };
                 pipeline.push(pool.allocate(chunk).unwrap());
             }
-            
+
             black_box(&pipeline);
         });
     });
-    
+
     group.finish();
 }
 

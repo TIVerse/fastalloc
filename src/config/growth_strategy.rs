@@ -26,19 +26,19 @@ use alloc::boxed::Box;
 pub enum GrowthStrategy {
     /// No growth - pool has fixed capacity.
     None,
-    
+
     /// Grow by a fixed amount each time.
     Linear {
         /// Number of elements to add on each growth
         amount: usize,
     },
-    
+
     /// Grow exponentially by multiplying current capacity.
     Exponential {
         /// Factor to multiply capacity by (e.g., 2.0 to double)
         factor: f64,
     },
-    
+
     /// Custom growth function.
     ///
     /// The function receives the current capacity and returns the amount to grow by.
@@ -61,7 +61,7 @@ impl GrowthStrategy {
             GrowthStrategy::Custom { compute } => compute(current_capacity),
         }
     }
-    
+
     /// Returns whether this strategy allows growth.
     #[inline]
     pub fn allows_growth(&self) -> bool {
@@ -73,16 +73,14 @@ impl core::fmt::Debug for GrowthStrategy {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             GrowthStrategy::None => write!(f, "GrowthStrategy::None"),
-            GrowthStrategy::Linear { amount } => {
-                f.debug_struct("GrowthStrategy::Linear")
-                    .field("amount", amount)
-                    .finish()
-            }
-            GrowthStrategy::Exponential { factor } => {
-                f.debug_struct("GrowthStrategy::Exponential")
-                    .field("factor", factor)
-                    .finish()
-            }
+            GrowthStrategy::Linear { amount } => f
+                .debug_struct("GrowthStrategy::Linear")
+                .field("amount", amount)
+                .finish(),
+            GrowthStrategy::Exponential { factor } => f
+                .debug_struct("GrowthStrategy::Exponential")
+                .field("factor", factor)
+                .finish(),
             GrowthStrategy::Custom { .. } => {
                 write!(f, "GrowthStrategy::Custom {{ .. }}")
             }
@@ -93,14 +91,14 @@ impl core::fmt::Debug for GrowthStrategy {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn growth_strategy_none() {
         let strategy = GrowthStrategy::None;
         assert_eq!(strategy.compute_growth(100), 0);
         assert!(!strategy.allows_growth());
     }
-    
+
     #[test]
     fn growth_strategy_linear() {
         let strategy = GrowthStrategy::Linear { amount: 50 };
@@ -108,15 +106,15 @@ mod tests {
         assert_eq!(strategy.compute_growth(0), 50);
         assert!(strategy.allows_growth());
     }
-    
+
     #[test]
     fn growth_strategy_exponential() {
         let strategy = GrowthStrategy::Exponential { factor: 2.0 };
         assert_eq!(strategy.compute_growth(100), 100); // 200 - 100
-        assert_eq!(strategy.compute_growth(50), 50);   // 100 - 50
+        assert_eq!(strategy.compute_growth(50), 50); // 100 - 50
         assert!(strategy.allows_growth());
     }
-    
+
     #[test]
     fn growth_strategy_custom() {
         let strategy = GrowthStrategy::Custom {
@@ -126,7 +124,7 @@ mod tests {
         assert_eq!(strategy.compute_growth(200), 100);
         assert!(strategy.allows_growth());
     }
-    
+
     #[test]
     fn growth_strategy_exponential_minimum() {
         let strategy = GrowthStrategy::Exponential { factor: 2.0 };

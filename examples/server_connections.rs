@@ -17,16 +17,18 @@ impl fastalloc::Poolable for Connection {}
 
 fn main() {
     println!("=== Server Connection Pooling Example ===\n");
-    
+
     // Create a pool for connections (typical server might have 1000-10000)
-    let pool = FixedPool::<Connection>::new(100)
-        .expect("Failed to create connection pool");
-    
-    println!("Connection pool created with capacity: {}\n", pool.capacity());
-    
+    let pool = FixedPool::<Connection>::new(100).expect("Failed to create connection pool");
+
+    println!(
+        "Connection pool created with capacity: {}\n",
+        pool.capacity()
+    );
+
     let mut active_connections = Vec::new();
     let mut next_id = 0u64;
-    
+
     // Simulate incoming connections
     println!("--- Accepting Connections ---");
     for i in 0..10 {
@@ -38,10 +40,13 @@ fn main() {
             bytes_received: 0,
             active: true,
         };
-        
+
         match pool.allocate(conn) {
             Ok(handle) => {
-                println!("Accepted connection {} from {}", handle.id, handle.client_addr);
+                println!(
+                    "Accepted connection {} from {}",
+                    handle.id, handle.client_addr
+                );
                 active_connections.push(handle);
                 next_id += 1;
             }
@@ -50,19 +55,21 @@ fn main() {
             }
         }
     }
-    
+
     println!("\nActive connections: {}", active_connections.len());
     println!("Pool available: {}\n", pool.available());
-    
+
     // Simulate some data transfer
     println!("--- Processing Connections ---");
     for conn in active_connections.iter_mut() {
         conn.bytes_sent += 1024;
         conn.bytes_received += 512;
-        println!("Connection {}: sent={}, received={}", 
-                 conn.id, conn.bytes_sent, conn.bytes_received);
+        println!(
+            "Connection {}: sent={}, received={}",
+            conn.id, conn.bytes_sent, conn.bytes_received
+        );
     }
-    
+
     // Simulate some connections closing
     println!("\n--- Closing Some Connections ---");
     let closed_count = 3;
@@ -71,10 +78,13 @@ fn main() {
             println!("Closing connection {} from {}", conn.id, conn.client_addr);
         }
     }
-    
+
     println!("\nActive connections: {}", active_connections.len());
-    println!("Pool available: {} (connections returned to pool)\n", pool.available());
-    
+    println!(
+        "Pool available: {} (connections returned to pool)\n",
+        pool.available()
+    );
+
     // Accept new connections (reusing freed slots)
     println!("--- Accepting New Connections (Reusing Slots) ---");
     for i in 0..5 {
@@ -86,11 +96,13 @@ fn main() {
             bytes_received: 0,
             active: true,
         };
-        
+
         match pool.allocate(conn) {
             Ok(handle) => {
-                println!("Accepted connection {} from {} (reused pool slot)", 
-                         handle.id, handle.client_addr);
+                println!(
+                    "Accepted connection {} from {} (reused pool slot)",
+                    handle.id, handle.client_addr
+                );
                 active_connections.push(handle);
                 next_id += 1;
             }
@@ -99,17 +111,17 @@ fn main() {
             }
         }
     }
-    
+
     println!("\nFinal active connections: {}", active_connections.len());
     println!("Pool available: {}", pool.available());
     println!("Total connections ever created: {}", next_id);
-    
+
     #[cfg(feature = "stats")]
     {
         println!("\n--- Pool Statistics ---");
         let stats = pool.statistics();
         println!("{}", stats);
     }
-    
+
     println!("\n=== Example Complete ===");
 }

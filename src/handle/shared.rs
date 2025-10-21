@@ -1,8 +1,8 @@
 //! Shared handle with reference counting for pool-allocated objects.
 
-use core::ops::Deref;
-use core::fmt;
 use alloc::rc::Rc;
+use core::fmt;
+use core::ops::Deref;
 
 /// A shared handle to a pool-allocated object with reference counting.
 ///
@@ -38,6 +38,7 @@ impl<'pool, T> SharedHandle<'pool, T> {
     ///
     /// This is internal and should only be called by pool implementations.
     #[inline]
+    #[allow(dead_code)]
     pub(crate) fn new(pool: &'pool dyn super::owned::PoolInterface<T>, index: usize) -> Self {
         Self {
             inner: Rc::new(SharedHandleInner {
@@ -47,19 +48,19 @@ impl<'pool, T> SharedHandle<'pool, T> {
             }),
         }
     }
-    
+
     /// Returns the number of shared handles pointing to this object.
     #[inline]
     pub fn strong_count(&self) -> usize {
         Rc::strong_count(&self.inner)
     }
-    
+
     /// Returns the internal index of this handle.
     #[inline]
     pub fn index(&self) -> usize {
         self.inner.index
     }
-    
+
     /// Creates a weak handle from this shared handle.
     pub fn downgrade(&self) -> super::WeakHandle<'pool, T> {
         super::WeakHandle::new(Rc::downgrade(&self.inner))
@@ -76,7 +77,7 @@ impl<'pool, T> Clone for SharedHandle<'pool, T> {
 
 impl<'pool, T> Deref for SharedHandle<'pool, T> {
     type Target = T;
-    
+
     #[inline]
     fn deref(&self) -> &Self::Target {
         self.inner.pool.get(self.inner.index)
@@ -118,24 +119,24 @@ impl<'pool, T: Eq> Eq for SharedHandle<'pool, T> {}
 mod tests {
     use super::*;
     use crate::pool::FixedPool;
-    
+
     #[test]
     fn shared_handle_clone() {
         let pool = FixedPool::<i32>::new(10).unwrap();
         let handle = pool.allocate(42).unwrap();
         let index = handle.index();
-        
+
         // Convert to shared handle (note: this bypasses normal pool lifecycle)
         let shared = SharedHandle::new(&pool, index);
         assert_eq!(shared.strong_count(), 1);
-        
+
         let shared2 = shared.clone();
         assert_eq!(shared.strong_count(), 2);
         assert_eq!(shared2.strong_count(), 2);
-        
+
         drop(shared2);
         assert_eq!(shared.strong_count(), 1);
-        
+
         // Prevent double-free by forgetting the original handle
         core::mem::forget(handle);
     }

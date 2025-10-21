@@ -3,6 +3,10 @@
 # Edition
 edition = "2021"
 
+# ============================================================================
+# STABLE OPTIONS (work with stable Rust)
+# ============================================================================
+
 # Maximum line width
 max_width = 100
 
@@ -11,29 +15,43 @@ hard_tabs = false
 tab_spaces = 4
 
 # Imports
-imports_granularity = "Crate"
-group_imports = "StdExternalCrate"
 reorder_imports = true
 
 # Formatting options
-fn_single_line = false
-where_single_line = false
 force_explicit_abi = true
-format_code_in_doc_comments = true
-normalize_comments = true
-wrap_comments = true
-comment_width = 80
-
-# Control flow
-control_brace_style = "AlwaysSameLine"
-indent_style = "Block"
 
 # Match formatting
 match_block_trailing_comma = false
-overflow_delimited_expr = true
 
 # Misc
 use_small_heuristics = "Default"
 use_field_init_shorthand = true
-force_multiline_blocks = false
 newline_style = "Unix"
+
+# ============================================================================
+# NIGHTLY-ONLY OPTIONS (uncomment when using nightly rustfmt)
+# These options require running: rustup toolchain install nightly
+# Then format with: cargo +nightly fmt
+# ============================================================================
+
+# Imports organization
+# imports_granularity = "Crate"
+# group_imports = "StdExternalCrate"
+
+# Function formatting
+# fn_single_line = false
+# where_single_line = false
+
+# Comment formatting
+# format_code_in_doc_comments = true
+# normalize_comments = true
+# wrap_comments = true
+# comment_width = 80
+
+# Control flow style
+# control_brace_style = "AlwaysSameLine"
+# indent_style = "Block"
+
+# Expression formatting
+# overflow_delimited_expr = true
+# force_multiline_blocks = false

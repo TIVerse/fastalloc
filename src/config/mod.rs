@@ -31,22 +31,23 @@ use core::mem;
 pub struct PoolConfig<T> {
     /// Initial capacity of the pool
     pub(crate) capacity: usize,
-    
+
     /// Maximum capacity (None for unlimited)
     pub(crate) max_capacity: Option<usize>,
-    
+
     /// Strategy for growing the pool
     pub(crate) growth_strategy: GrowthStrategy,
-    
+
     /// Memory alignment (must be power of 2)
     pub(crate) alignment: usize,
-    
+
     /// Whether to pre-initialize all objects
     pub(crate) pre_initialize: bool,
-    
+
     /// Initialization strategy
+    #[allow(dead_code)]
     pub(crate) initialization_strategy: InitializationStrategy<T>,
-    
+
     /// Whether this is a thread-local pool
     pub(crate) thread_local: bool,
 }
@@ -67,37 +68,37 @@ impl<T> PoolConfig<T> {
     pub fn builder() -> PoolConfigBuilder<T> {
         PoolConfigBuilder::new()
     }
-    
+
     /// Returns the initial capacity.
     #[inline]
     pub fn capacity(&self) -> usize {
         self.capacity
     }
-    
+
     /// Returns the maximum capacity, if set.
     #[inline]
     pub fn max_capacity(&self) -> Option<usize> {
         self.max_capacity
     }
-    
+
     /// Returns the growth strategy.
     #[inline]
     pub fn growth_strategy(&self) -> &GrowthStrategy {
         &self.growth_strategy
     }
-    
+
     /// Returns the alignment requirement.
     #[inline]
     pub fn alignment(&self) -> usize {
         self.alignment
     }
-    
+
     /// Returns whether objects should be pre-initialized.
     #[inline]
     pub fn pre_initialize(&self) -> bool {
         self.pre_initialize
     }
-    
+
     /// Returns whether this is a thread-local pool configuration.
     #[inline]
     pub fn thread_local(&self) -> bool {
@@ -122,7 +123,7 @@ impl<T> Default for PoolConfig<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn default_config() {
         let config = PoolConfig::<i32>::default();
@@ -132,14 +133,11 @@ mod tests {
         assert!(!config.pre_initialize());
         assert!(!config.thread_local());
     }
-    
+
     #[test]
     fn builder_creates_config() {
-        let config = PoolConfig::<i32>::builder()
-            .capacity(500)
-            .build()
-            .unwrap();
-        
+        let config = PoolConfig::<i32>::builder().capacity(500).build().unwrap();
+
         assert_eq!(config.capacity(), 500);
     }
 }
