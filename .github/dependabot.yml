@@ -1,0 +1,24 @@
+version: 2
+updates:
+  # Keep dependencies up to date for Cargo (Rust)
+  - package-ecosystem: "cargo"
+    directory: "/" # Location of Cargo.toml
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps"
+    rebase-strategy: "auto"
+    labels:
+      - "dependencies"
+      - "rust"
+
+  # Keep GitHub Actions up to date
+  - package-ecosystem: "github-actions"
+    directory: "/" # Location of workflows
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci"
+    labels:
+      - "github-actions"
