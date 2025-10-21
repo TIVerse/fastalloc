@@ -26,6 +26,12 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
       
+      - name: Regenerate Cargo.lock for older Rust versions
+        if: matrix.rust == '1.70.0'
+        run: |
+          rm -f Cargo.lock
+          cargo generate-lockfile
+      
       - name: Cache cargo registry
         uses: actions/cache@v3
         with:
