@@ -8,31 +8,20 @@
 
   <!-- Documentation -->
   [![Documentation](https://img.shields.io/docsrs/fastalloc/latest?style=for-the-badge&label=docs.rs&logo=rust)](https://docs.rs/fastalloc)
-  [![docs-main](https://img.shields.io/badge/docs-main-blueviolet?style=for-the-badge&logo=readthedocs)](https://YOUR-USERNAME.github.io/fastalloc/)
-  <!-- Update the above URL with your GitHub username -->
-
   <!-- Build & Test -->
   [![CI](https://img.shields.io/github/actions/workflow/status/TIVerse/fastalloc/ci.yml?branch=master&style=for-the-badge&logo=github-actions&logoColor=white&label=CI)](https://github.com/TIVerse/fastalloc/actions)
   [![Codecov](https://img.shields.io/codecov/c/github/TIVerse/fastalloc?style=for-the-badge&logo=codecov&token=YOUR_TOKEN)](https://codecov.io/gh/TIVerse/fastalloc)
   <!-- Replace YOUR_TOKEN with your Codecov token -->
   [![Miri](https://img.shields.io/badge/miri-tested-8A2BE2?style=for-the-badge&logo=rust)](https://github.com/rust-lang/miri)
-  [![Bors enabled](https://bors.tech/images/badge_small.svg)](https://app.bors.tech/repositories/YOUR-REPO-ID)
-  <!-- Replace YOUR-REPO-ID with your Bors repository ID -->
-
   <!-- Code Quality -->
   [![Rust Version](https://img.shields.io/badge/rustc-1.70%2B-blue?style=for-the-badge&logo=rust)](https://www.rust-lang.org)
   [![MSRV](https://img.shields.io/badge/MSRV-1.70.0-important?style=for-the-badge&logo=rust)](https://www.rust-lang.org)
   [![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-success?style=for-the-badge&logo=rust)](https://github.com/rust-secure-code/safety-dance/)
-  [![Rustc 1.70](https://img.shields.io/badge/rustc-1.70.0+-ab6000.svg?style=for-the-badge&logo=rust)](https://blog.rust-lang.org/2023/06/01/Rust-1.70.0.html)
-  [![Dependency Status](https://deps.rs/repo/github/TIVerse/fastalloc/status.svg?style=for-the-badge)](https://deps.rs/repo/github/TIVerse/fastalloc)
-  [![LoC](https://tokei.rs/b1/github/TIVerse/fastalloc?style=for-the-badge&category=code)](https://github.com/TIVerse/fastalloc)
   [![Rust Documentation](https://img.shields.io/badge/rust-docs%20%28stable%29-8A2BE2?style=for-the-badge&logo=rust)](https://docs.rs/fastalloc/)
 
   <!-- Community -->
   [![License](https://img.shields.io/crates/l/fastalloc?style=for-the-badge&color=blue&label=license)](LICENSE)
   [![Contributors](https://img.shields.io/github/contributors/TIVerse/fastalloc?style=for-the-badge&logo=github)](https://github.com/TIVerse/fastalloc/graphs/contributors)
-  [![Discord](https://img.shields.io/discord/YOUR-DISCORD-INVITE?style=for-the-badge&logo=discord&label=chat&color=7289DA)](https://discord.gg/YOUR-INVITE-CODE)
-  <!-- Replace with your Discord server invite code -->
   [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](http://makeapullrequest.com)
   [![GitHub stars](https://img.shields.io/github/stars/TIVerse/fastalloc?style=for-the-badge&logo=github)](https://github.com/TIVerse/fastalloc/stargazers)
   [![GitHub forks](https://img.shields.io/github/forks/TIVerse/fastalloc?style=for-the-badge&logo=github)](https://github.com/TIVerse/fastalloc/network/members)
@@ -159,7 +148,7 @@ fn main() {
         println!("Thread result: {}", handle.join().unwrap());
     }
 }
-```
+
 let mut handle = pool.allocate(42).unwrap();
 
 // Use the value
