@@ -12,7 +12,7 @@
   <!-- Update the above URL with your GitHub username -->
 
   <!-- Build & Test -->
-  [![CI](https://img.shields.io/github/actions/workflow/status/TIVerse/fastalloc/ci.yml?branch=main&style=for-the-badge&logo=github-actions&logoColor=white&label=CI)](https://github.com/TIVerse/fastalloc/actions)
+  [![CI](https://img.shields.io/github/actions/workflow/status/TIVerse/fastalloc/ci.yml?branch=master&style=for-the-badge&logo=github-actions&logoColor=white&label=CI)](https://github.com/TIVerse/fastalloc/actions)
   [![Codecov](https://img.shields.io/codecov/c/github/TIVerse/fastalloc?style=for-the-badge&logo=codecov&token=YOUR_TOKEN)](https://codecov.io/gh/TIVerse/fastalloc)
   <!-- Replace YOUR_TOKEN with your Codecov token -->
   [![Miri](https://img.shields.io/badge/miri-tested-8A2BE2?style=for-the-badge&logo=rust)](https://github.com/rust-lang/miri)
