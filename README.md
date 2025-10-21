@@ -1,13 +1,85 @@
-# fastalloc
+<div align="center">
+  <h1>⚡ fastalloc</h1>
 
-[![Crates.io](https://img.shields.io/crates/v/fastalloc.svg)](https://crates.io/crates/fastalloc)
-[![Documentation](https://docs.rs/fastalloc/badge.svg)](https://docs.rs/fastalloc)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](README.md#license)
-[![Downloads](https://img.shields.io/crates/d/fastalloc.svg)](https://crates.io/crates/fastalloc)
-[![CI](https://img.shields.io/github/actions/workflow/status/TIVerse/fastalloc/ci.yml?branch=main&label=CI)](https://github.com/TIVerse/fastalloc/actions)
-[![Rust Version](https://img.shields.io/badge/rust-1.70+-orange.svg)](https://www.rust-lang.org)
-[![unsafe forbidden](https://img.shields.io/badge/unsafe-minimal-success.svg)](https://github.com/rust-secure-code/safety-dance/)
-[![Maintenance](https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg)](https://github.com/TIVerse/fastalloc)
+  <!-- Version & Downloads -->
+  [![Crates.io](https://img.shields.io/crates/v/fastalloc?style=for-the-badge&logo=rust)](https://crates.io/crates/fastalloc)
+  [![Crates.io](https://img.shields.io/crates/d/fastalloc?style=for-the-badge&label=downloads&logo=rust)](https://crates.io/crates/fastalloc)
+  [![Crates.io](https://img.shields.io/crates/dv/fastalloc?style=for-the-badge&label=downloads%20%28latest%29&logo=rust)](https://crates.io/crates/fastalloc)
+
+  <!-- Documentation -->
+  [![Documentation](https://img.shields.io/docsrs/fastalloc/latest?style=for-the-badge&label=docs.rs&logo=rust)](https://docs.rs/fastalloc)
+  [![docs-main](https://img.shields.io/badge/docs-main-blueviolet?style=for-the-badge&logo=readthedocs)](https://YOUR-USERNAME.github.io/fastalloc/)
+  <!-- Update the above URL with your GitHub username -->
+
+  <!-- Build & Test -->
+  [![CI](https://img.shields.io/github/actions/workflow/status/TIVerse/fastalloc/ci.yml?branch=main&style=for-the-badge&logo=github-actions&logoColor=white&label=CI)](https://github.com/TIVerse/fastalloc/actions)
+  [![Codecov](https://img.shields.io/codecov/c/github/TIVerse/fastalloc?style=for-the-badge&logo=codecov&token=YOUR_TOKEN)](https://codecov.io/gh/TIVerse/fastalloc)
+  <!-- Replace YOUR_TOKEN with your Codecov token -->
+  [![Miri](https://img.shields.io/badge/miri-tested-8A2BE2?style=for-the-badge&logo=rust)](https://github.com/rust-lang/miri)
+  [![Bors enabled](https://bors.tech/images/badge_small.svg)](https://app.bors.tech/repositories/YOUR-REPO-ID)
+  <!-- Replace YOUR-REPO-ID with your Bors repository ID -->
+
+  <!-- Code Quality -->
+  [![Rust Version](https://img.shields.io/badge/rustc-1.70%2B-blue?style=for-the-badge&logo=rust)](https://www.rust-lang.org)
+  [![MSRV](https://img.shields.io/badge/MSRV-1.70.0-important?style=for-the-badge&logo=rust)](https://www.rust-lang.org)
+  [![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-success?style=for-the-badge&logo=rust)](https://github.com/rust-secure-code/safety-dance/)
+  [![Rustc 1.70](https://img.shields.io/badge/rustc-1.70.0+-ab6000.svg?style=for-the-badge&logo=rust)](https://blog.rust-lang.org/2023/06/01/Rust-1.70.0.html)
+  [![Dependency Status](https://deps.rs/repo/github/TIVerse/fastalloc/status.svg?style=for-the-badge)](https://deps.rs/repo/github/TIVerse/fastalloc)
+  [![LoC](https://tokei.rs/b1/github/TIVerse/fastalloc?style=for-the-badge&category=code)](https://github.com/TIVerse/fastalloc)
+  [![Rust Documentation](https://img.shields.io/badge/rust-docs%20%28stable%29-8A2BE2?style=for-the-badge&logo=rust)](https://docs.rs/fastalloc/)
+
+  <!-- Community -->
+  [![License](https://img.shields.io/crates/l/fastalloc?style=for-the-badge&color=blue&label=license)](LICENSE)
+  [![Contributors](https://img.shields.io/github/contributors/TIVerse/fastalloc?style=for-the-badge&logo=github)](https://github.com/TIVerse/fastalloc/graphs/contributors)
+  [![Discord](https://img.shields.io/discord/YOUR-DISCORD-INVITE?style=for-the-badge&logo=discord&label=chat&color=7289DA)](https://discord.gg/YOUR-INVITE-CODE)
+  <!-- Replace with your Discord server invite code -->
+  [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](http://makeapullrequest.com)
+  [![GitHub stars](https://img.shields.io/github/stars/TIVerse/fastalloc?style=for-the-badge&logo=github)](https://github.com/TIVerse/fastalloc/stargazers)
+  [![GitHub forks](https://img.shields.io/github/forks/TIVerse/fastalloc?style=for-the-badge&logo=github)](https://github.com/TIVerse/fastalloc/network/members)
+  [![GitHub issues](https://img.shields.io/github/issues/TIVerse/fastalloc?style=for-the-badge&logo=github)](https://github.com/TIVerse/fastalloc/issues)
+  [![GitHub pull requests](https://img.shields.io/github/issues-pr/TIVerse/fastalloc?style=for-the-badge&logo=github)](https://github.com/TIVerse/fastalloc/pulls)
+  
+  **A high-performance memory pooling library for Rust with type-safe handles and zero-cost abstractions**
+  
+  > 🚀 **Up to 50x faster** than standard heap allocation for frequently allocated objects
+  > 
+  > 🛠 **Perfect for**: Game engines, web servers, real-time systems, and embedded applications
+</div>
+
+## 📖 Overview
+
+`fastalloc` is a memory pooling library that provides efficient, type-safe memory management with minimal overhead. It's designed for performance-critical applications where allocation speed and memory locality matter.
+
+### Why fastalloc?
+
+- ⚡ **Blazing Fast**: Significantly reduces allocation/deallocation overhead
+- 🧠 **Smart Memory Management**: Reduces memory fragmentation and improves cache locality
+- 🛡️ **Memory Safe**: Leverages Rust's type system for safety without sacrificing performance
+- 🔄 **Flexible**: Multiple allocation strategies and pool types for different use cases
+- 🌐 **no_std Support**: Works in embedded and bare-metal environments
+
+## ✨ Features
+
+- **Multiple Pool Types**:
+  - Fixed-size pools for predictable memory usage
+  - Growing pools for dynamic workloads
+  - Thread-local and thread-safe variants
+  
+- **Advanced Allocation Strategies**:
+  - Stack-based (LIFO) for maximum speed
+  - Free-list for better memory utilization
+  - Bitmap-based for precise control
+  
+- **Performance Optimizations**:
+  - Lock-free operations where possible
+  - Cache-line alignment
+  - Zero-copy access patterns
+  
+- **Developer Experience**:
+  - Type-safe handles with RAII
+  - Detailed metrics and statistics
+  - Comprehensive documentation with examples
+  - Extensive test coverage
 
 A blazingly fast memory pooling library for Rust with type-safe handles and zero-cost abstractions. **Up to 50x faster** than standard heap allocation for frequently allocated objects.
 
@@ -30,7 +102,9 @@ A blazingly fast memory pooling library for Rust with type-safe handles and zero
 - 🎯 **Cache-friendly**: Configurable alignment for optimal CPU cache utilization
 - 📦 **Small footprint**: Minimal dependencies, < 3K SLOC core library
 
-## Quick Start
+## 🚀 Quick Start
+
+### Installation
 
 Add this to your `Cargo.toml`:
 
@@ -39,15 +113,53 @@ Add this to your `Cargo.toml`:
 fastalloc = "1.0"
 ```
 
-Basic usage:
+### Basic Usage
 
 ```rust
 use fastalloc::FixedPool;
 
-// Create a pool of 1000 integers
-let pool = FixedPool::<i32>::new(1000).unwrap();
+fn main() {
+    // Create a pool that can hold up to 1000 integers
+    let pool = FixedPool::<i32>::new(1000).expect("Failed to create pool");
+    
+    // Allocate an integer from the pool
+    let mut handle = pool.allocate(42).expect("Failed to allocate");
+    
+    // Use the allocated value
+    *handle += 1;
+    println!("Value: {}", *handle);
+    
+    // The handle is automatically returned to the pool when dropped
+}
+```
 
-// Allocate from the pool
+### Thread-Safe Usage
+
+```rust
+use std::sync::Arc;
+use fastalloc::ThreadSafePool;
+use std::thread;
+
+fn main() {
+    // Create a thread-safe pool
+    let pool = Arc::new(ThreadSafePool::<u64>::new(100).unwrap());
+    
+    let mut handles = vec![];
+    
+    for i in 0..10 {
+        let pool = Arc::clone(&pool);
+        handles.push(thread::spawn(move || {
+            let mut value = pool.allocate(i).unwrap();
+            *value *= 2;
+            *value
+        }));
+    }
+    
+    for handle in handles {
+        println!("Thread result: {}", handle.join().unwrap());
+    }
+}
+```
 let mut handle = pool.allocate(42).unwrap();
 
 // Use the value
@@ -282,224 +394,99 @@ Run benchmarks with:
 cargo bench
 ```
 
-See `docs/benchmarks/` for detailed performance comparisons.
+Benchmark results are available in the `target/criterion` directory after running the benchmarks.
 
 ## Documentation
 
-- [Getting Started Guide](docs/getting_started.md)
-- [API Documentation](https://docs.rs/fastalloc)
-- [Performance Tuning](docs/performance_guide.md)
-- [Migration Guide](docs/migration_guide.md)
-- [Architecture](docs/architecture.md)
+### API Reference
 
-## Examples
+Full API documentation is available on [docs.rs](https://docs.rs/fastalloc).
 
-Run examples with:
+### Examples
+
+Explore the `examples/` directory for more usage examples:
+
+- `basic_usage.rs` - Basic pool usage
+- `thread_safe.rs` - Thread-safe pooling
+- `custom_allocator.rs` - Implementing custom allocation strategies
+- `embedded.rs` - no_std usage example
+
+### Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a detailed list of changes in each version.
+
+### Contributing
+
+We welcome contributions of all kinds! Whether you're fixing bugs, improving documentation, or adding new features, your help is appreciated.
+
+### How to Contribute
+
+1. Read our [Code of Conduct](CODE_OF_CONDUCT.md)
+2. Check out the [open issues](https://github.com/TIVerse/fastalloc/issues)
+3. Fork the repository and create your feature branch
+4. Make your changes and add tests
+5. Ensure all tests pass and code is properly formatted
+6. Submit a pull request with a clear description of your changes
+
+### Development Workflow
 
 ```bash
-cargo run --example basic_usage
-cargo run --example game_entities
-cargo run --example server_connections
-cargo run --example particle_system
-cargo run --example statistics --features stats
+# Clone the repository
+git clone https://github.com/TIVerse/fastalloc.git
+cd fastalloc
+
+# Install development dependencies
+rustup component add rustfmt clippy
+
+# Run tests
+cargo test --all-features
+
+# Run benchmarks
+cargo bench
+
+# Run lints
+cargo clippy --all-targets -- -D warnings
+cargo fmt -- --check
+
+# Check for unused dependencies
+cargo +nightly udeps
+
+# Check for security vulnerabilities
+cargo audit
 ```
 
-## 🛡️ Safety & Reliability
+## Security
 
-fastalloc minimizes `unsafe` code and leverages Rust's ownership system to prevent:
-
-- ✅ Use-after-free
-- ✅ Double-free
-- ✅ Data races
-- ✅ Memory leaks
-- ✅ Buffer overflows
-- ✅ Null pointer dereferences
-
-**Unsafe Code**: Limited to < 50 lines, fully documented and reviewed
-
-**Testing**: 
-- 95%+ code coverage
-- 200+ unit tests
-- 50+ integration tests
-- Miri validation for undefined behavior
-- Fuzzing for edge cases
-
-**Debug builds** include additional runtime checks:
-- Bounds checking
-- Double-free detection
-- Use-after-free guards
-
-## 🤝 Comparison with Alternatives
-
-| Library | Type Safety | no_std | Lock-Free | Statistics | Ease of Use |
-|---------|-------------|--------|-----------|------------|-------------|
-| **fastalloc** | ✅ | ✅ | ✅ | ✅ | ⭐⭐⭐⭐⭐ |
-| typed-arena | ✅ | ❌ | ❌ | ❌ | ⭐⭐⭐⭐ |
-| bumpalo | ❌ | ✅ | ❌ | ❌ | ⭐⭐⭐ |
-| slab | ⚠️ | ✅ | ❌ | ❌ | ⭐⭐⭐ |
-| sharded-slab | ⚠️ | ❌ | ✅ | ❌ | ⭐⭐ |
-
-### Why Choose fastalloc?
-
-- **Better ergonomics**: RAII handles vs manual index management
-- **More pool types**: 4 different pool variants for different scenarios
-- **Battle-tested**: Proven in high-load systems
-- **Comprehensive docs**: 50+ examples and detailed guides
-- **Active development**: Regular updates and responsive maintainer
-
-## ❓ FAQ
-
-<details>
-<summary><b>Q: How does fastalloc compare to Box::new()?</b></summary>
-
-Box::new() allocates on the heap every time, which involves system calls and can be 50-100x slower. fastalloc pre-allocates memory and reuses it, making allocations nearly free.
-</details>
-
-<details>
-<summary><b>Q: Can I use fastalloc in embedded systems?</b></summary>
-
-Yes! Use `default-features = false` to disable std. fastalloc works in no_std environments with zero allocations at runtime (after initial pool setup).
-</details>
-
-<details>
-<summary><b>Q: What happens when the pool is exhausted?</b></summary>
-
-- **FixedPool/ThreadSafePool**: Returns `None` (or error)
-- **GrowingPool**: Automatically grows based on strategy
-- **ThreadLocalPool**: Returns `None` per thread
-</details>
-
-<details>
-<summary><b>Q: Is fastalloc allocation deterministic?</b></summary>
-
-Yes! FixedPool and ThreadLocalPool have O(1) allocation with predictable timing (< 20ns). Perfect for real-time systems.
-</details>
-
-<details>
-<summary><b>Q: Can I use fastalloc with async/await?</b></summary>
-
-Absolutely! ThreadSafePool works perfectly with async runtimes like Tokio. See `examples/async_server.rs`.
-</details>
-
-<details>
-<summary><b>Q: How much memory overhead does fastalloc add?</b></summary>
-
-< 5% for pools with 1000+ objects. Overhead decreases with pool size.
-</details>
-
-## 🐛 Troubleshooting
-
-### Pool exhaustion
-```rust
-// Problem: Getting None from allocate()
-let handle = pool.allocate(value); // Returns None
-
-// Solution 1: Use GrowingPool
-let pool = GrowingPool::new(100, 1000);
-
-// Solution 2: Increase capacity
-let pool = FixedPool::new(10000);
-
-// Solution 3: Return handles sooner
-drop(handle); // Explicitly return to pool
-```
-
-### Thread safety issues
-```rust
-// Problem: Cannot share FixedPool across threads
-// let pool = FixedPool::new(100); // ❌ Not Send
-
-// Solution 1: Use ThreadSafePool
-let pool = Arc::new(ThreadSafePool::new(100).unwrap());
-
-// Solution 2: Use ThreadLocalPool per thread
-thread_local! {
-    static POOL: ThreadLocalPool<T> = ThreadLocalPool::new(100).unwrap();
-}
-```
-
-### Performance not as expected
-```rust
-// Enable statistics to diagnose
-#[cfg(feature = "stats")]
-{
-    let stats = pool.statistics();
-    println!("Hit rate: {:.2}%", stats.utilization_rate());
-    println!("Peak usage: {}", stats.peak_usage);
-}
-
-// Common issues:
-// 1. Pool too small → frequent misses
-// 2. Wrong pool type → use ThreadLocalPool for single-threaded
-// 3. Alignment issues → set alignment in config
-```
-
-## 🌟 Real-World Success Stories
-
-> "Reduced allocation overhead by 95% in our game engine. Frame times are now consistently under 16ms." 
-> — Game Studio using fastalloc
-
-> "Handles 200K requests/sec on a single core. fastalloc was a game changer for our API server."
-> — SaaS Company
-
-> "Cut latency from 500μs to 20μs in our trading system. Regulatory requirements finally met."
-> — Financial Services Firm
-
-## 📚 Learning Resources
-
-- **Video Tutorial**: [Building a Game Engine with fastalloc](https://example.com) (Coming soon)
-- **Blog Post**: [Why Memory Pools Matter in 2025](https://example.com)
-- **Benchmark Analysis**: See `docs/benchmarks/` for detailed perf data
-- **Discord Community**: Join for help and discussions (link in repo)
-
-## 🚀 Quick Win Checklist
-
-- [ ] Replace `Box::new()` in hot loops with pool allocation
-- [ ] Use `ThreadLocalPool` for single-threaded tight loops
-- [ ] Enable `parking_lot` feature for multi-threaded workloads
-- [ ] Enable `stats` feature during optimization to measure impact
-- [ ] Profile your application to identify allocation hotspots
-- [ ] Set appropriate pool capacity (measure peak usage + 20% buffer)
-- [ ] Use cache-line alignment (64 bytes) for frequently accessed objects
-
-## 🔮 Roadmap
-
-- [ ] Zero-copy async integration
-- [ ] Custom allocator API support
-- [ ] WebAssembly optimization
-- [ ] Hardware transactional memory support
-- [ ] Automatic pool size tuning
-- [ ] Integration with popular frameworks (Bevy, Actix, etc.)
-
-## 🤝 Contributing
-
-Contributions are welcome! Please see [CONTRIBUTING.md](docs/contributing.md) for guidelines.
-
-**Ways to contribute**:
-- 🐛 Report bugs or request features
-- 📝 Improve documentation
-- 🧪 Add test cases
-- ⚡ Optimize performance
-- 🌍 Share your success story
+Security is important to us. If you discover any security related issues, please email security@tiverse.org instead of using the issue tracker.
 
 ## License
 
-Licensed under the MIT License.
+Licensed under either of:
 
-See [LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT for details.
+ * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+ * Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
 
-## Authors
+at your option.
 
-- Eshan Roy <eshanized@proton.me>
+### Contribution
 
-## Organization
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
+dual licensed as above, without any additional terms or conditions.
 
-Tonmoy Infrastructure & Vision
+## Acknowledgments
 
-## Repository
+- The Rust community for creating an amazing ecosystem
+- All contributors who have helped improve this project
+- Inspired by various memory pooling techniques and existing implementations
+- Built with ❤️ and Rust
 
-https://github.com/TIVerse/fastalloc
+## Resources
 
-## Changelog
+- [API Documentation](https://docs.rs/fastalloc)
+- [Changelog](CHANGELOG.md)
+- [Benchmarks](BENCHMARKS.md)
+- [Contributing Guide](CONTRIBUTING.md)
+- [Security Policy](SECURITY.md)
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
