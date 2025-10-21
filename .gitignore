@@ -1,1 +1,69 @@
+
+# Rust build artifacts
 /target
+**/target/
+Cargo.lock
+
+# Backup files
+**/*.rs.bk
+**/*.bk
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Benchmark results
+/benches/target/
+criterion/
+*.profdata
+*.profraw
+
+# Documentation build
+/doc/
+/docs/target/
+
+# Test coverage
+*.gcda
+*.gcno
+*.profdata
+tarpaulin-report.html
+cobertura.xml
+lcov.info
+
+# Flamegraph output
+flamegraph.svg
+perf.data
+perf.data.old
+
+# Miri artifacts
+.miri/
+
+# Release artifacts
+*.deb
+*.rpm
+*.tar.gz
+*.zip
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS specific
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# Package registry artifacts
+/target/package/
+
+# Rust analyzer
+rust-project.json
+
+# Local configuration
+.env
+.env.local
