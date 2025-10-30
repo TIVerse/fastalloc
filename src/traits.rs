@@ -37,12 +37,14 @@ pub trait Poolable {
     ///
     /// This is a good place to reset the object to a clean state.
     /// The default implementation does nothing.
+    #[inline]
     fn on_acquire(&mut self) {}
 
     /// Called when an object is being returned to the pool.
     ///
     /// This is a good place to perform cleanup or release resources.
     /// The default implementation does nothing.
+    #[inline]
     fn on_release(&mut self) {}
 }
 

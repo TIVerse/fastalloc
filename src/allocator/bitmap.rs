@@ -134,6 +134,7 @@ impl BitmapAllocator {
 }
 
 impl Allocator for BitmapAllocator {
+    #[inline]
     fn allocate(&mut self) -> Option<usize> {
         if self.allocated >= self.capacity {
             return None;
@@ -146,6 +147,7 @@ impl Allocator for BitmapAllocator {
         Some(index)
     }
 
+    #[inline]
     fn free(&mut self, index: usize) {
         debug_assert!(index < self.capacity, "index out of bounds");
         debug_assert!(self.is_allocated(index), "double free detected");
