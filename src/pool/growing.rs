@@ -54,6 +54,8 @@ pub struct GrowingPool<T> {
     allocator: RefCell<FreeListAllocator>,
     /// Current total capacity
     capacity: RefCell<usize>,
+    /// Cumulative chunk sizes for fast O(log n) chunk lookup
+    chunk_boundaries: RefCell<Vec<usize>>,
     /// Pool configuration
     config: PoolConfig<T>,
     /// Statistics collector
@@ -92,6 +94,7 @@ impl<T: Poolable> GrowingPool<T> {
             storage: RefCell::new(storage),
             allocator: RefCell::new(FreeListAllocator::new(capacity)),
             capacity: RefCell::new(capacity),
+            chunk_boundaries: RefCell::new(vec![capacity]),
             config,
             #[cfg(feature = "stats")]
             stats: RefCell::new(crate::stats::StatisticsCollector::new(capacity)),
@@ -136,6 +139,7 @@ impl<T: Poolable> GrowingPool<T> {
         self.storage.borrow_mut().push(new_chunk);
         self.allocator.borrow_mut().extend(growth_amount);
         *self.capacity.borrow_mut() = new_capacity;
+        self.chunk_boundaries.borrow_mut().push(new_capacity);
 
         #[cfg(feature = "stats")]
         self.stats.borrow_mut().record_growth(new_capacity);
@@ -275,24 +279,26 @@ impl<T: Poolable> GrowingPool<T> {
     }
 
     /// Converts a flat index to chunk index and offset within that chunk.
-    /// Returns (chunk_index, offset_within_chunk, chunk_size)
+    /// Returns (chunk_index, offset_within_chunk)
+    /// Uses cached chunk boundaries for fast O(log n) binary search lookup.
+    #[inline]
     fn compute_chunk_location(&self, index: usize) -> (usize, usize) {
-        // We need to calculate this without borrowing storage
-        // Since we know the initial capacity and growth pattern,
-        // for simplicity we'll borrow briefly just to compute
-        let storage = self.storage.borrow();
-        let mut remaining = index;
-
-        for (chunk_idx, chunk) in storage.iter().enumerate() {
-            if remaining < chunk.len() {
-                let offset = remaining;
-                drop(storage); // Drop borrow before returning
-                return (chunk_idx, offset);
-            }
-            remaining -= chunk.len();
-        }
-
-        panic!("Index out of bounds: {}", index);
+        let boundaries = self.chunk_boundaries.borrow();
+        
+        // Binary search to find the chunk
+        let chunk_idx = match boundaries.binary_search(&(index + 1)) {
+            Ok(idx) => idx,
+            Err(idx) => idx,
+        };
+        
+        // Compute offset within chunk
+        let offset = if chunk_idx == 0 {
+            index
+        } else {
+            index - boundaries[chunk_idx - 1]
+        };
+        
+        (chunk_idx, offset)
     }
 
     /// Returns the total capacity of the pool.
