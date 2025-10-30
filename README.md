@@ -72,7 +72,7 @@
 
 A memory pooling library for Rust with type-safe handles and RAII-based memory management. **Provides 1.3-1.4x faster allocation** than standard heap with the key benefits of predictable latency, zero fragmentation, and excellent cache locality.
 
-**Version 1.0.1** - Production-ready release with comprehensive testing. Repository: [TIVerse/fastalloc](https://github.com/TIVerse/fastalloc).
+**Version 1.5.0** - Production-ready release with performance optimizations and comprehensive documentation. Repository: [TIVerse/fastalloc](https://github.com/TIVerse/fastalloc).
 
 > 🚀 **Perfect for**: Real-time systems, game engines, embedded devices, and high-churn workloads
 > 

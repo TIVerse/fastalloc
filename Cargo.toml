@@ -1,10 +1,10 @@
 [package]
 name = "fastalloc"
-version = "1.0.1"
+version = "1.5.0"
 authors = ["Eshan Roy <eshanized@proton.me>"]
 edition = "2021"
 rust-version = "1.70.0"
-description = "Blazingly fast memory pooling library (50x faster than Box) with type-safe handles, zero-cost abstractions, no_std support, and multiple pool types for game engines, real-time systems, and high-performance servers"
+description = "High-performance memory pooling library with type-safe handles, predictable latency, and zero fragmentation. Perfect for game engines, real-time systems, and high-churn workloads."
 license = "MIT"
 repository = "https://github.com/TIVerse/fastalloc"
 homepage = "https://github.com/TIVerse/fastalloc"

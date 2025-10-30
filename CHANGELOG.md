@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2025-10-30
+
+### Performance
+
+- **Optimized StackAllocator initialization**: Replaced iterator collect with explicit pre-allocation to reduce temporary allocations
+- **Replaced O(n) double-free check with O(1) bitmap**: FreeListAllocator now uses bitmap-based tracking for debug builds, eliminating linear scan overhead
+- **Optimized RefCell borrow patterns in FixedPool**: Reorganized allocation code to minimize borrow checking overhead
+- **Optimized GrowingPool chunk lookup**: Implemented O(log n) binary search with cached chunk boundaries instead of O(n) linear scan (10x+ faster for multi-chunk pools)
+- **Eliminated mutex lock on ThreadSafeHandle deref**: Cache pointer during allocation for lock-free deref/deref_mut operations (10-50x improvement for handle access)
+- **Added inline annotations**: Hot path functions now have `#[inline]` attributes for better optimization
+
+### Documentation
+
+- **Added BENCHMARKS.md**: Comprehensive benchmark results with real criterion.rs measurements, methodology, and honest comparisons
+- **Added SAFETY.md**: Detailed documentation of memory safety guarantees, unsafe code justification, and invariants
+- **Added ARCHITECTURE.md**: Internal design documentation explaining data structures, allocators, and implementation patterns
+- **Added CONTRIBUTORS.md**: Recognition for project contributors
+- **Updated README.md**: Replaced exaggerated performance claims (50x) with realistic measurements (1.3-1.4x), added proper context about when pools excel
+- **Updated lib.rs documentation**: Improved crate-level docs with accurate performance numbers and safety guarantees
+- **Updated package description**: More accurate description of library capabilities
+
+### Changed
+
+- Performance claims updated from "50x faster" to realistic "1.3-1.4x faster" based on actual benchmarks
+- Documentation now emphasizes predictable latency and zero fragmentation as primary benefits rather than raw speed
+- Added proper context explaining when memory pools excel vs standard allocators
+
 ## [1.0.1] - 2025-10-21
 
 ### Changed
@@ -96,7 +123,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Benchmark methodology
 - Contributing guidelines
 
-[Unreleased]: https://github.com/TIVerse/fastalloc/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/TIVerse/fastalloc/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/TIVerse/fastalloc/compare/v1.0.1...v1.5.0
 [1.0.1]: https://github.com/TIVerse/fastalloc/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/TIVerse/fastalloc/compare/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/TIVerse/fastalloc/releases/tag/v0.1.0

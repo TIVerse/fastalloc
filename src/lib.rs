@@ -2,7 +2,7 @@
 //!
 //! A memory pooling library for Rust with type-safe handles and RAII-based memory management.
 //!
-//! **Version 1.0.1** - Production-ready release with comprehensive testing.
+//! **Version 1.5.0** - Production-ready release with performance optimizations and comprehensive documentation.
 //!
 //! ## Overview
 //!
