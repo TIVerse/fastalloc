@@ -30,9 +30,9 @@
   
   **A high-performance memory pooling library for Rust with type-safe handles and zero-cost abstractions**
   
-  > 🚀 **Up to 50x faster** than standard heap allocation for frequently allocated objects
+  > 🚀 **Up to 1.4x faster** allocation with predictable latency and zero fragmentation
   > 
-  > 🛠 **Perfect for**: Game engines, web servers, real-time systems, and embedded applications
+  > 🛠 **Perfect for**: Game engines, real-time systems, embedded applications, and high-churn workloads
 </div>
 
 ## 📖 Overview
@@ -70,13 +70,19 @@
   - Comprehensive documentation with examples
   - Extensive test coverage
 
-A blazingly fast memory pooling library for Rust with type-safe handles and zero-cost abstractions. **Up to 50x faster** than standard heap allocation for frequently allocated objects.
+A memory pooling library for Rust with type-safe handles and RAII-based memory management. **Provides 1.3-1.4x faster allocation** than standard heap with the key benefits of predictable latency, zero fragmentation, and excellent cache locality.
 
-**Version 1.0.1** - Stable release with comprehensive testing and battle-tested API. Now hosted on GitHub at [TIVerse/fastalloc](https://github.com/TIVerse/fastalloc).
+**Version 1.0.1** - Production-ready release with comprehensive testing. Repository: [TIVerse/fastalloc](https://github.com/TIVerse/fastalloc).
 
-> 🚀 **Perfect for**: Game engines, web servers, real-time systems, embedded devices, and any performance-critical application
+> 🚀 **Perfect for**: Real-time systems, game engines, embedded devices, and high-churn workloads
 > 
-> 💡 **Key Benefit**: Eliminate allocation overhead, reduce memory fragmentation, and achieve predictable latency
+> 💡 **Key Benefits**: Predictable latency, zero fragmentation, improved cache locality, deterministic behavior
+
+**Documentation**:
+- [API Documentation](https://docs.rs/fastalloc) - Complete API reference
+- [BENCHMARKS.md](BENCHMARKS.md) - Real benchmark results and methodology
+- [SAFETY.md](SAFETY.md) - Safety guarantees and unsafe code documentation
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
 
 ## ✨ Key Features
 
@@ -179,32 +185,32 @@ Memory pools significantly improve performance in scenarios with frequent alloca
 
 ## ⚡ Performance
 
-Typical performance characteristics:
+**Benchmark Results** (criterion.rs, release mode with LTO):
 
-| Operation | fastalloc | Standard Heap | Speedup |
-|-----------|-----------|---------------|----------|
-| Fixed pool allocation | **< 20ns** | ~1000ns | **50x faster** |
-| Deallocation | **< 10ns** | ~500ns | **50x faster** |
-| Thread-local allocation | **< 15ns** | ~1000ns | **65x faster** |
-| Thread-safe (low contention) | **< 100ns** | ~1200ns | **12x faster** |
+| Operation | fastalloc | Standard Heap | Improvement |
+|-----------|-----------|---------------|-------------|
+| Fixed pool allocation (i32) | **~3.5 ns** | ~4.8 ns | **1.3-1.4x faster** |
+| Growing pool allocation | **~4.6 ns** | ~4.8 ns | **~1.05x faster** |
+| Allocation reuse (LIFO) | **~7.2 ns** | N/A | Excellent cache locality |
 
-**Memory overhead**: < 5% for pools over 1000 objects
+See [BENCHMARKS.md](BENCHMARKS.md) for detailed methodology and results.
 
-### Real-World Benchmarks
+### When Pools Excel
 
-```
-Game entity spawning (10,000 objects):
-  Standard heap:  42.3ms
-  fastalloc:       0.8ms  [53x faster]
+Memory pools provide benefits beyond raw speed:
 
-Web server request handling (100,000 requests):
-  Standard heap: 215.7ms
-  fastalloc:      4.2ms  [51x faster]
+1. **Predictable Latency**: No allocation spikes or fragmentation slowdowns
+2. **Cache Locality**: Objects stored contiguously improve cache hit rates
+3. **Reduced Fragmentation**: Eliminates long-term heap fragmentation
+4. **Real-Time Guarantees**: Bounded worst-case allocation time
 
-Particle system update (50,000 particles/frame):
-  Standard heap:  38.9ms
-  fastalloc:       0.7ms  [56x faster]
-```
+**Best use cases**:
+- High allocation/deallocation churn (game entities, particles)
+- Real-time systems requiring bounded latency
+- Embedded systems with constrained memory
+- Long-running processes avoiding fragmentation
+
+**Note**: Modern system allocators (jemalloc, mimalloc) are highly optimized. Pools excel in specific scenarios rather than universally. Always benchmark your specific workload.
 
 ## Examples
 
@@ -470,12 +476,14 @@ dual licensed as above, without any additional terms or conditions.
 - Inspired by various memory pooling techniques and existing implementations
 - Built with ❤️ and Rust
 
-## Resources
+## 📚 Resources
 
-- [API Documentation](https://docs.rs/fastalloc)
-- [Changelog](CHANGELOG.md)
-- [Benchmarks](BENCHMARKS.md)
-- [Contributing Guide](CONTRIBUTING.md)
-- [Security Policy](SECURITY.md)
+- [API Documentation](https://docs.rs/fastalloc) - Complete API reference with examples
+- [BENCHMARKS.md](BENCHMARKS.md) - Real benchmark results, methodology, and comparisons
+- [SAFETY.md](SAFETY.md) - Memory safety guarantees and unsafe code documentation
+- [CHANGELOG.md](CHANGELOG.md) - Version history and breaking changes
+- [CONTRIBUTING.md](CONTRIBUTING.md) - How to contribute to the project
+- [SECURITY.md](SECURITY.md) - Security policy and vulnerability reporting
+- [Examples](examples/) - Working code examples for common use cases
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
