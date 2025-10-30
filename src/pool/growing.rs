@@ -284,20 +284,20 @@ impl<T: Poolable> GrowingPool<T> {
     #[inline]
     fn compute_chunk_location(&self, index: usize) -> (usize, usize) {
         let boundaries = self.chunk_boundaries.borrow();
-        
+
         // Binary search to find the chunk
         let chunk_idx = match boundaries.binary_search(&(index + 1)) {
             Ok(idx) => idx,
             Err(idx) => idx,
         };
-        
+
         // Compute offset within chunk
         let offset = if chunk_idx == 0 {
             index
         } else {
             index - boundaries[chunk_idx - 1]
         };
-        
+
         (chunk_idx, offset)
     }
 

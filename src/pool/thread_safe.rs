@@ -16,7 +16,7 @@ use std::sync::Arc;
 ///
 /// This handle holds a reference to the pool and automatically returns
 /// the object when dropped, with proper locking.
-/// 
+///
 /// Performance note: This handle caches the pointer to avoid locking
 /// on every dereference operation, only locking during allocation and deallocation.
 pub struct ThreadSafeHandle<T: crate::traits::Poolable> {
@@ -127,7 +127,7 @@ impl<T: crate::traits::Poolable> ThreadSafePool<T> {
 
         // Allocate using the internal pool API
         let index = pool.allocate_internal(value)?;
-        
+
         // Cache the pointer for lock-free deref
         let cached_ptr = pool.get_mut(index) as *mut T;
 
