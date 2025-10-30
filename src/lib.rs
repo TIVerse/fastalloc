@@ -1,19 +1,23 @@
 //! # fastalloc
 //!
-//! A high-performance memory pooling library for Rust with type-safe handles and zero-cost abstractions.
+//! A memory pooling library for Rust with type-safe handles and RAII-based memory management.
 //!
-//! **Version 1.0.1** - Stable release with comprehensive testing and battle-tested API.
+//! **Version 1.0.1** - Production-ready release with comprehensive testing.
 //!
 //! ## Overview
 //!
-//! `fastalloc` provides memory pools that allow you to reuse allocations efficiently, reducing
-//! allocation overhead and improving cache locality. It's designed for use cases where objects
-//! are frequently created and destroyed, such as:
+//! `fastalloc` provides memory pools that allow you to reuse allocations efficiently,
+//! offering **1.3-1.4x faster allocation** than standard heap with the key benefits of:
+//! - **Predictable latency**: No allocation spikes or fragmentation slowdowns
+//! - **Cache locality**: Objects stored contiguously improve cache hit rates  
+//! - **Zero fragmentation**: Eliminates long-term heap fragmentation
+//! - **Real-time guarantees**: Bounded worst-case allocation time
 //!
+//! Designed for use cases where objects are frequently created and destroyed:
 //! - Game development (entities, particles, physics objects)
 //! - Real-time systems (audio processing, robotics)
 //! - High-performance servers (connection pooling, request handling)
-//! - Data processing (temporary objects in hot paths)
+//! - Embedded systems (constrained memory, no fragmentation)
 //! - Scientific computing (matrices, particles, graph nodes)
 //!
 //! ## Features
@@ -62,20 +66,39 @@
 //!
 //! ## Performance
 //!
-//! Typical performance characteristics:
-//! - Fixed pool allocation: < 20ns per object
-//! - Deallocation: < 10ns per object
-//! - Memory overhead: < 5% for pools over 1000 objects
-//! - Thread-safe pool: < 100ns with moderate contention
+//! Benchmark results (criterion.rs, release mode with LTO):
+//! - Fixed pool allocation: ~3.5ns per object (1.3-1.4x faster than Box)
+//! - Growing pool allocation: ~4.6ns per object
+//! - Allocation reuse (LIFO): ~7.2ns per cycle
+//!
+//! See [BENCHMARKS.md](https://github.com/TIVerse/fastalloc/blob/master/BENCHMARKS.md)
+//! for detailed methodology and results.
 //!
 //! ## Safety
 //!
 //! This crate minimizes the use of `unsafe` code and leverages Rust's ownership system
-//! to prevent common memory safety issues like use-after-free and double-free.
-//! Debug builds include additional runtime checks for:
-//! - Double-free detection
-//! - Leak detection
-//! - Pool exhaustion warnings
+//! to prevent common memory safety issues:
+//!
+//! - ✅ **Use-after-free**: Handles maintain exclusive ownership via borrow checker
+//! - ✅ **Double-free**: Allocator tracks which slots are in use (bitmap in debug mode)
+//! - ✅ **Memory leaks**: RAII ensures objects are returned to pool when dropped
+//! - ✅ **Data races**: Thread-safe types use proper synchronization (Arc + Mutex)
+//!
+//! Debug builds include additional runtime checks:
+//! - Double-free detection (O(1) bitmap check)
+//! - Index bounds validation
+//! - Allocation state consistency
+//!
+//! See [SAFETY.md](https://github.com/TIVerse/fastalloc/blob/master/SAFETY.md)
+//! for detailed safety guarantees and `unsafe` code documentation.
+//!
+//! ## Documentation
+//!
+//! - [API Documentation](https://docs.rs/fastalloc) - Complete API reference
+//! - [BENCHMARKS.md](https://github.com/TIVerse/fastalloc/blob/master/BENCHMARKS.md) - Benchmark results and methodology
+//! - [SAFETY.md](https://github.com/TIVerse/fastalloc/blob/master/SAFETY.md) - Safety guarantees
+//! - [ARCHITECTURE.md](https://github.com/TIVerse/fastalloc/blob/master/ARCHITECTURE.md) - Internal design
+//! - [Examples](https://github.com/TIVerse/fastalloc/tree/master/examples) - Working code examples
 
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
