@@ -25,7 +25,10 @@ impl StackAllocator {
     pub fn new(capacity: usize) -> Self {
         // Initialize with all indices available in reverse order
         // so that index 0 is allocated first
-        let free_stack: Vec<usize> = (0..capacity).rev().collect();
+        let mut free_stack = Vec::with_capacity(capacity);
+        for i in (0..capacity).rev() {
+            free_stack.push(i);
+        }
 
         Self {
             free_stack,
