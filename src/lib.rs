@@ -95,10 +95,11 @@
 //! ## Documentation
 //!
 //! - [API Documentation](https://docs.rs/fastalloc) - Complete API reference
-//! - [BENCHMARKS.md](https://github.com/TIVerse/fastalloc/blob/master/BENCHMARKS.md) - Benchmark results and methodology
-//! - [SAFETY.md](https://github.com/TIVerse/fastalloc/blob/master/SAFETY.md) - Safety guarantees
-//! - [ARCHITECTURE.md](https://github.com/TIVerse/fastalloc/blob/master/ARCHITECTURE.md) - Internal design
-//! - [Examples](https://github.com/TIVerse/fastalloc/tree/master/examples) - Working code examples
+//! - [BENCHMARKS.md](https://github.com/TIVerse/fastalloc/blob/master/BENCHMARKS.md) - Benchmark results, methodology, and library comparisons
+//! - [SAFETY.md](https://github.com/TIVerse/fastalloc/blob/master/SAFETY.md) - Safety guarantees, unsafe code, and fragmentation behavior
+//! - [ARCHITECTURE.md](https://github.com/TIVerse/fastalloc/blob/master/ARCHITECTURE.md) - Internal design and memory overhead analysis
+//! - [ERROR_HANDLING.md](https://github.com/TIVerse/fastalloc/blob/master/ERROR_HANDLING.md) - Pool exhaustion strategies and error recovery
+//! - [Examples](https://github.com/TIVerse/fastalloc/tree/master/examples) - Working code examples for common use cases
 
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]

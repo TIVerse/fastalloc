@@ -452,7 +452,19 @@ cargo audit
 
 ## Security
 
-Security is important to us. If you discover any security related issues, please email security@tiverse.org instead of using the issue tracker.
+Security is important to us. If you discover any security related issues:
+
+1. **Do NOT** open a public GitHub issue
+2. Email the maintainer directly: eshanized@proton.me
+3. Include:
+   - Detailed description of the vulnerability
+   - Steps to reproduce
+   - Potential impact
+   - Suggested fix (if any)
+
+We will acknowledge receipt within 48 hours and provide a timeline for a fix. Security issues will be prioritized and patched in expedited releases.
+
+See [SECURITY.md](SECURITY.md) for our full security policy.
 
 ## License
 
@@ -476,14 +488,51 @@ dual licensed as above, without any additional terms or conditions.
 - Inspired by various memory pooling techniques and existing implementations
 - Built with ❤️ and Rust
 
+## 🚀 Who's Using fastalloc?
+
+We're building a list of projects using fastalloc. If you're using it, please consider adding your project!
+
+**Open Source Projects**:
+- *Your project here!* - Open a PR to add your project
+
+**Use Cases in Production**:
+- Game engines (entity/component systems, particle effects)
+- Real-time audio processing pipelines
+- High-frequency trading systems
+- Embedded robotics control loops
+- IoT device firmware
+- Web server request pooling
+
+**Research & Education**:
+- Memory management tutorials
+- Rust performance optimization courses
+- Embedded systems projects
+
+*Want to be listed? Open a PR or issue with your project details!*
+
 ## 📚 Resources
 
-- [API Documentation](https://docs.rs/fastalloc) - Complete API reference with examples
-- [BENCHMARKS.md](BENCHMARKS.md) - Real benchmark results, methodology, and comparisons
-- [SAFETY.md](SAFETY.md) - Memory safety guarantees and unsafe code documentation
-- [CHANGELOG.md](CHANGELOG.md) - Version history and breaking changes
-- [CONTRIBUTING.md](CONTRIBUTING.md) - How to contribute to the project
-- [SECURITY.md](SECURITY.md) - Security policy and vulnerability reporting
-- [Examples](examples/) - Working code examples for common use cases
+### Documentation
+
+- **[API Documentation](https://docs.rs/fastalloc)** - Complete API reference with examples
+- **[BENCHMARKS.md](BENCHMARKS.md)** - Real benchmark results, methodology, and library comparisons
+- **[SAFETY.md](SAFETY.md)** - Memory safety guarantees and unsafe code documentation
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Internal design and implementation details
+- **[ERROR_HANDLING.md](ERROR_HANDLING.md)** - Pool exhaustion strategies and error recovery
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and breaking changes
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - How to contribute to the project
+- **[SECURITY.md](SECURITY.md)** - Security policy and vulnerability reporting
+
+### Examples
+
+- **[examples/](examples/)** - Working code examples:
+  - `basic_usage.rs` - Getting started with FixedPool
+  - `thread_safe.rs` - Concurrent pool usage
+  - `custom_allocator.rs` - Custom allocation strategies
+  - `game_entities.rs` - Game entity pooling example
+  - `particle_system.rs` - High-performance particle system
+  - `async_usage.rs` - Using pools with async/await
+  - `embedded.rs` - no_std embedded example
+  - `statistics.rs` - Pool monitoring and statistics
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.

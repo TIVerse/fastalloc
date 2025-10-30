@@ -119,11 +119,58 @@ The primary benefits of memory pools are NOT raw speed but:
 
 ## Comparison with Other Pooling Libraries
 
-For a fair comparison with other Rust pooling libraries:
-- `typed-arena`: Best for same-type allocations
-- `bumpalo`: Best for append-only workloads
-- `slotmap`: Best for stable indices
-- `fastalloc`: Best for handle-based RAII with deallocation
+### Feature Comparison
+
+| Library | Handle-based RAII | Deallocation | Thread-Safe | no_std | Growth | Use Case |
+|---------|-------------------|--------------|-------------|--------|---------|----------|
+| **fastalloc** | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | General pooling with handles |
+| **typed-arena** | ❌ No | ❌ No | ❌ No | ✅ Yes | ✅ Yes | Arena allocation (bulk drop) |
+| **bumpalo** | ❌ No | ❌ No | ❌ No | ✅ Yes | ✅ Yes | Bump allocator (append-only) |
+| **slotmap** | ⚠️ Keys | ✅ Yes | ❌ No | ✅ Yes | ✅ Yes | Stable generational indices |
+| **sharded-slab** | ⚠️ Refs | ✅ Yes | ✅ Yes | ❌ No | ✅ Yes | Lock-free concurrent slab |
+
+### When to Use Each
+
+**fastalloc**: 
+- Need RAII automatic return to pool
+- Mixed allocation/deallocation patterns
+- Want thread-safe option
+- Need growing pools with configurable strategies
+
+**typed-arena**: 
+- All objects same lifetime (bulk drop)
+- Append-only until arena is cleared
+- Maximum performance for arena pattern
+- Don't need individual deallocation
+
+**bumpalo**: 
+- Bump allocation pattern
+- No individual deallocation needed
+- Want to reset entire allocator
+- Optimized for append-only
+
+**slotmap**: 
+- Need stable indices that survive reallocation
+- Generational indices prevent ABA problem
+- Want to refer to objects by ID
+- Don't need handles with Deref
+
+**sharded-slab**: 
+- High-concurrency scenarios
+- Need lock-free allocation
+- Can tolerate refs instead of owned handles
+- Only need std support
+
+### Performance Comparison (Rough Estimates)
+
+| Operation | fastalloc | typed-arena | bumpalo | slotmap |
+|-----------|-----------|-------------|---------|---------|
+| Allocate | ~3.5ns | ~2ns | ~1ns | ~5ns |
+| Deallocate | ~3.5ns | N/A | N/A | ~5ns |
+| Lookup | Direct | Direct | Direct | ~2ns |
+| Thread-safe | ~100ns | N/A | N/A | Varies |
+
+**Note**: These are rough estimates. Actual performance depends on usage patterns, cache behavior, and system architecture. Always benchmark your specific workload.
 
 ## Methodology
 

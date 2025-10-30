@@ -200,6 +200,108 @@ In debug mode, additional checks are enabled:
 
 **Release mode**: These checks are compiled out for performance.
 
+## Fragmentation Behavior
+
+### How Pools Prevent Fragmentation
+
+**Fixed-size pools eliminate fragmentation**:
+
+1. **All slots are same size**: Every object occupies exactly one slot of size `size_of::<T>()`
+2. **Contiguous storage**: Objects stored in a single Vec, no scattered allocations
+3. **No external fragmentation**: Freed slots are immediately reusable
+4. **No internal fragmentation**: Objects fit exactly in their slots (plus alignment padding)
+
+### Long-Running Process Behavior
+
+**FixedPool**:
+```
+Time 0:    [OOOOOOOOOO] (all occupied)
+Time 1:    [O__O__O__O] (some freed)
+Time 2:    [OOOOOOOOOO] (reused slots)
+Time N:    [O__O__O__O] (no fragmentation growth)
+```
+
+**Behavior**: Pool memory footprint remains constant. Freed slots are immediately reusable.
+
+**GrowingPool**:
+```
+Time 0:    Chunk 0: [OOOO]
+Time 1:    Chunk 0: [OOOO] + Chunk 1: [OOOO] (grew)
+Time 2:    Chunk 0: [O__O] + Chunk 1: [__OO] (mixed usage)
+Time N:    Stays at max reached capacity
+```
+
+**Behavior**: Grows to meet peak demand, then stabilizes. No shrinking by default.
+
+### Worst-Case Fragmentation Scenario
+
+**Standard heap** (with mixed allocation):
+```
+Allocate 1000 objects of type A
+Allocate 1000 objects of type B (interleaved with A)
+Free all type A objects
+→ Memory is fragmented with holes where A was
+→ New large allocations may fail despite enough total free memory
+```
+
+**Memory pool**:
+```
+Pool A (1000 slots): All A objects
+Pool B (1000 slots): All B objects
+Free all A objects in Pool A
+→ Pool A slots are immediately reusable
+→ No fragmentation between pools
+→ Each pool's memory remains contiguous
+```
+
+### Mixed Allocation Patterns
+
+**Pattern**: Allocate A, allocate B, free A, allocate C
+
+**Standard heap**: May fragment over time as A, B, C have different sizes
+**Memory pool**: If A and C are same type (same pool), no fragmentation. If different types, use separate pools.
+
+**Recommendation**: Use a separate pool for each type that has different allocation patterns.
+
+### Preventing Fragmentation
+
+1. **Use type-specific pools**: Don't mix different types in same pool
+2. **Size objects consistently**: Pad smaller objects to avoid wasting slots
+3. **Use FixedPool when possible**: No growth = no chunk proliferation
+4. **Monitor pool usage**: Use stats feature to track utilization
+5. **Preallocate to peak**: If you know max capacity, use FixedPool sized appropriately
+
+### GrowingPool Growth Strategies
+
+**Linear Growth** (`amount: 100`):
+- Adds constant amount each time
+- Predictable memory growth
+- Can lead to many small chunks if growth is too small
+
+**Exponential Growth** (`factor: 2.0`):
+- Doubles capacity each time
+- Fewer chunks overall
+- May overshoot actual needs
+
+**Recommendation**: Use exponential for unknown workloads, linear for predictable growth.
+
+### Memory Reclamation
+
+Pools **do not shrink** automatically because:
+- Shrinking would invalidate cached pointers
+- Reallocation is expensive
+- Peak capacity is often sustained
+
+**If you need to reclaim memory**:
+```rust
+// Option 1: Drop and recreate the pool
+drop(old_pool);
+let new_pool = FixedPool::new(smaller_capacity)?;
+
+// Option 2: Keep pool but clear references
+// (pool will stay at its peak capacity)
+```
+
 ## Common Pitfalls and How We Avoid Them
 
 ### Pitfall 1: Use-After-Free

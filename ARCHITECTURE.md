@@ -215,6 +215,87 @@ pub struct WeakHandle<'pool, T> {
 
 **Use case**: Breaking reference cycles, observer patterns.
 
+## Memory Overhead Analysis
+
+### Per-Object Overhead
+
+**FixedPool** (per object):
+- Storage: `size_of::<T>()` bytes
+- No per-object metadata (objects stored directly)
+- Total: Exactly `size_of::<T>()` bytes per slot
+
+**Allocator Overhead** (one-time, shared across all objects):
+
+| Allocator Type | Per-Pool Overhead | Formula |
+|----------------|-------------------|---------|
+| StackAllocator | `capacity * 8 + bitmap_size` | Vec<usize> + optional debug bitmap |
+| FreeListAllocator | `capacity * 8 + bitmap_size` | Vec<usize> + optional debug bitmap |
+| BitmapAllocator | `(capacity + 63) / 64 * 8` | One bit per slot (packed in u64s) |
+
+**Debug Mode Additional Overhead**:
+- StackAllocator: `(capacity + 63) / 64 * 8` bytes for bitmap
+- FreeListAllocator: `(capacity + 63) / 64 * 8` bytes for bitmap
+- Release mode: No additional overhead
+
+**Example Calculation** (FixedPool with 1000 i32 objects):
+```
+Object storage: 1000 * 4 = 4,000 bytes
+StackAllocator: 1000 * 8 = 8,000 bytes (indices)
+Debug bitmap: (1000 + 63) / 64 * 8 = 128 bytes
+Total: 12,128 bytes
+Overhead: 8,128 / 12,128 = 67% (but amortized across all objects)
+Per-object view: 8,128 / 1000 = 8.128 bytes overhead per slot
+```
+
+**For larger objects** (e.g., 256-byte structs):
+```
+Object storage: 1000 * 256 = 256,000 bytes
+Allocator overhead: 8,128 bytes
+Total: 264,128 bytes
+Overhead: 8,128 / 264,128 = 3.1%
+```
+
+**Conclusion**: Overhead is < 5% for objects > 100 bytes and pools > 1000 objects.
+
+### Handle Overhead
+
+**OwnedHandle**:
+- Size: `size_of::<&dyn Trait>() + size_of::<usize>()` = 16 + 8 = 24 bytes (on 64-bit)
+- No heap allocation (stored on stack)
+
+**ThreadSafeHandle**:
+- Size: `Arc` (16 bytes) + `usize` (8 bytes) + `*mut T` (8 bytes) = 32 bytes
+- Arc overhead: Shared atomic reference counter
+
+**SharedHandle**:
+- Size: `Rc` (16 bytes) wrapper around OwnedHandle
+- Rc overhead: Reference counter
+
+### GrowingPool Overhead
+
+**Additional overhead**:
+- `Vec<Vec<MaybeUninit<T>>>`: Outer Vec grows, ~24 bytes per chunk pointer
+- `chunk_boundaries: Vec<usize>`: 8 bytes per chunk
+- Per chunk: ~32 bytes of Vec metadata
+
+**Example** (GrowingPool with 3 chunks: 100, 200, 400 capacity):
+```
+Chunk 0 storage: 100 * size_of::<T>()
+Chunk 1 storage: 200 * size_of::<T>()
+Chunk 2 storage: 400 * size_of::<T>()
+Chunk pointers: 3 * 24 = 72 bytes
+Boundaries: 3 * 8 = 24 bytes
+Allocator: (100+200+400) * 8 = 5,600 bytes
+Total overhead: ~5,696 bytes + 3 * ~32 = ~5,792 bytes
+```
+
+### Memory Efficiency Tips
+
+1. **Use larger pool capacities** (overhead amortizes better)
+2. **Use FixedPool when capacity is known** (less overhead than GrowingPool)
+3. **For tiny objects** (< 8 bytes), consider batching or using larger container types
+4. **In release mode**, debug bitmap is compiled out
+
 ## Memory Layout
 
 ### FixedPool Memory Layout
