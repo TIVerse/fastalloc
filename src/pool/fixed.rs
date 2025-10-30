@@ -145,15 +145,17 @@ impl<T: Poolable> FixedPool<T> {
                 allocated: self.capacity,
             })?;
 
-        #[cfg(feature = "stats")]
-        self.stats.borrow_mut().record_allocation();
-
-        // Call on_acquire hook
+        // Call on_acquire hook before borrowing storage
         value.on_acquire();
 
-        // Write the value to the slot
-        let mut storage = self.storage.borrow_mut();
-        storage[index].write(value);
+        // Combine storage write and stats update to reduce borrows
+        {
+            let mut storage = self.storage.borrow_mut();
+            storage[index].write(value);
+        }
+
+        #[cfg(feature = "stats")]
+        self.stats.borrow_mut().record_allocation();
 
         Ok(OwnedHandle::new(self, index))
     }
