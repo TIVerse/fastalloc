@@ -16,46 +16,34 @@ use std::sync::Arc;
 ///
 /// This handle holds a reference to the pool and automatically returns
 /// the object when dropped, with proper locking.
+/// 
+/// Performance note: This handle caches the pointer to avoid locking
+/// on every dereference operation, only locking during allocation and deallocation.
 pub struct ThreadSafeHandle<T: crate::traits::Poolable> {
     pool: Arc<Mutex<crate::pool::GrowingPool<T>>>,
     index: usize,
+    /// Cached pointer to the value for lock-free deref
+    cached_ptr: *mut T,
 }
 
 impl<T: crate::traits::Poolable> Deref for ThreadSafeHandle<T> {
     type Target = T;
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
-        #[cfg(not(feature = "parking_lot"))]
-        let pool = self.pool.lock().unwrap();
-        #[cfg(feature = "parking_lot")]
-        let pool = self.pool.lock();
-
-        // Safety: We extend the lifetime of the reference beyond the lock.
-        // This is safe because:
-        // 1. The pool is behind Arc, so it won't be deallocated
-        // 2. The index is valid and won't be reused while this handle exists
-        // 3. No other mutable access can occur while handle exists
-        unsafe {
-            let ptr = pool.get(self.index) as *const T;
-            &*ptr
-        }
+        // Safety: The cached pointer is valid for the lifetime of this handle.
+        // The pool storage is stable (won't move) and this handle has exclusive
+        // ownership of the slot via allocator tracking.
+        unsafe { &*self.cached_ptr }
     }
 }
 
 impl<T: crate::traits::Poolable> DerefMut for ThreadSafeHandle<T> {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
-        #[cfg(not(feature = "parking_lot"))]
-        let pool = self.pool.lock().unwrap();
-        #[cfg(feature = "parking_lot")]
-        let pool = self.pool.lock();
-
-        // Safety: Same reasoning as Deref, plus we have &mut self
-        // so we have exclusive access to this handle
-        unsafe {
-            #[allow(clippy::missing_transmute_annotations)]
-            let ptr = pool.get_mut(self.index) as *mut T;
-            &mut *ptr
-        }
+        // Safety: The cached pointer is valid for the lifetime of this handle.
+        // We have &mut self so we have exclusive access to the handle.
+        unsafe { &mut *self.cached_ptr }
     }
 }
 
@@ -71,7 +59,11 @@ impl<T: crate::traits::Poolable> Drop for ThreadSafeHandle<T> {
 }
 
 // Safety: ThreadSafeHandle can be sent across threads if T is Send
+// The raw pointer is only accessed through the handle which ensures exclusive access
 unsafe impl<T: crate::traits::Poolable + Send> Send for ThreadSafeHandle<T> {}
+
+// Note: ThreadSafeHandle is intentionally NOT Sync because it contains a raw pointer
+// and provides mutable access through DerefMut. Each handle should be owned by a single thread.
 
 /// A thread-safe memory pool using locks for synchronization.
 ///
@@ -135,10 +127,14 @@ impl<T: crate::traits::Poolable> ThreadSafePool<T> {
 
         // Allocate using the internal pool API
         let index = pool.allocate_internal(value)?;
+        
+        // Cache the pointer for lock-free deref
+        let cached_ptr = pool.get_mut(index) as *mut T;
 
         Ok(ThreadSafeHandle {
             pool: Arc::clone(&self.inner),
             index,
+            cached_ptr,
         })
     }
 
